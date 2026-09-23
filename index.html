@@ -108,7 +108,7 @@
         .check-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--border-blue); }
         
         .task-row.status-ok .check-btn.ok-btn { background: var(--bg-white); color: var(--ok-green); border-color: var(--text-black); box-shadow: 3px 3px 0px var(--text-black); }
-        .task-row.status-ok .check-btn.parcial-btn { display: none; } /* Ocultar Parcial si está OK */
+        .task-row.status-ok .check-btn.parcial-btn { display: none; }
 
         .task-row.status-parcial .check-btn.parcial-btn { background: var(--bg-white); color: var(--parcial-yellow); border-color: var(--text-black); box-shadow: 3px 3px 0px var(--text-black); }
         .task-row.status-parcial .check-btn.ok-btn { border-color: var(--bg-white); color: var(--bg-white); box-shadow: 3px 3px 0px var(--text-black); background: transparent; }
@@ -236,7 +236,12 @@
             renderAll();
         }
 
-        async function saveData() { await supabaseClient.from('app_viajes').upsert({ id: 'estado_v2', datos: appData }); }
+        async function saveData() { 
+            const { error } = await supabaseClient.from('app_viajes').upsert({ id: 'estado_v2', datos: appData }); 
+            if (error) {
+                alert("⚠️ ERROR AL GUARDAR EN SUPABASE:\n" + error.message);
+            }
+        }
 
         supabaseClient.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'app_viajes' }, (payload) => {
             if(payload.new && payload.new.datos) { appData = payload.new.datos; renderAll(); }
