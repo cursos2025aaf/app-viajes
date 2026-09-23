@@ -3,106 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Viajes | JCP ↔ PB</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Viajes | Asistente Personal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-pure-white: #FFFFFF; 
-            --border-blue: #0033CC; 
-            --text-black: #000000;
-            --text-gray-dark: #333333;
-            --ok-green: #008800;
-            --parcial-yellow: #B8860B; /* Amarillo oscuro / Ámbar */
-            --danger-red: #CC0000;
+            --bg-app: #F3F4F6;
+            --surface: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --border-color: #E5E7EB;
+            --accent-primary: #3B82F6;
+            --danger: #EF4444;
+            
+            /* Colores Premium para Tareas */
+            --ok-bg: #D1FAE5;
+            --ok-text: #065F46;
+            --parcial-bg: #FEF3C7;
+            --parcial-text: #92400E;
+            --btn-idle-bg: #F3F4F6;
+            --btn-idle-text: #9CA3AF;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; font-weight: 700; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        body { background-color: var(--bg-pure-white); color: var(--text-black); padding-bottom: 110px; }
+        body { background-color: var(--bg-app); color: var(--text-primary); padding-bottom: 100px; -webkit-font-smoothing: antialiased; }
 
         header {
-            background-color: var(--border-blue); color: var(--bg-pure-white);
-            padding: 25px 20px 15px 20px;
+            background-color: var(--surface);
+            padding: 24px 20px 16px;
             position: sticky; top: 0; z-index: 10;
-            border-bottom: 4px solid var(--text-black);
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
         }
-        h1 { font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; }
-        .subtitle { font-size: 1rem; color: #E0E0E0; margin-top: 5px; }
+        h1 { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.025em; }
+        .subtitle { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
-        .tab-content { display: none; }
+        .container { padding: 24px 16px; max-width: 800px; margin: 0 auto; }
+        
+        .tab-content { display: none; animation: fadeIn 0.2s ease-out; }
         .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .category-group { margin-bottom: 30px; }
+        .category-group { margin-bottom: 32px; }
         .category-title { 
-            font-size: 1.1rem; font-weight: 900; color: var(--border-blue); 
-            text-transform: uppercase; margin-bottom: 10px; border-bottom: 3px solid var(--border-blue); padding-bottom: 5px;
+            font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); 
+            text-transform: uppercase; letter-spacing: 0.05em; 
+            margin-bottom: 12px; margin-left: 4px;
         }
         
-        .list-card { background: var(--bg-pure-white); border: 3px solid var(--border-blue); }
+        .list-card { 
+            background: var(--surface); 
+            border-radius: 16px; 
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            overflow: hidden; 
+        }
 
-        .item-row { display: flex; align-items: center; padding: 18px 15px; border-bottom: 3px solid var(--border-blue); }
+        .item-row { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border-color); transition: background 0.2s; }
         .item-row:last-child { border-bottom: none; }
-        .item-left { display: flex; align-items: center; gap: 15px; flex-grow: 1; cursor: pointer; }
+        .item-left { display: flex; align-items: center; gap: 16px; flex-grow: 1; cursor: pointer; }
         
-        .circle-check { width: 30px; height: 30px; border: 3px solid var(--border-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--bg-pure-white); }
-        .circle-check .material-icons { font-size: 24px; color: transparent; font-weight: 900; }
-        .item-row.checked .circle-check { background: var(--text-black); border-color: var(--text-black); }
-        .item-row.checked .circle-check .material-icons { color: var(--bg-pure-white); }
+        .circle-check { 
+            width: 24px; height: 24px; border-radius: 50%; 
+            border: 2px solid #D1D5DB; display: flex; align-items: center; justify-content: center; 
+            transition: all 0.2s ease; flex-shrink: 0;
+        }
+        .circle-check .material-icons-outlined { font-size: 16px; color: transparent; font-weight: 600; }
         
-        .item-text { font-size: 1.1rem; color: var(--text-black); }
-        .item-row.checked .item-text { text-decoration: line-through; color: var(--text-gray-dark); }
+        .item-row.checked .circle-check { background: var(--accent-primary); border-color: var(--accent-primary); }
+        .item-row.checked .circle-check .material-icons-outlined { color: white; }
+        
+        .item-text { font-size: 0.95rem; font-weight: 500; color: var(--text-primary); transition: color 0.2s; }
+        .item-row.checked .item-text { color: var(--text-secondary); text-decoration: line-through; }
 
-        .task-row { flex-wrap: wrap; gap: 10px; }
+        /* Estilos Premium para Tareas */
+        .task-row { flex-wrap: wrap; gap: 12px; }
+        .task-priority { 
+            font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); 
+            background: var(--bg-app); padding: 4px 8px; border-radius: 6px; min-width: 28px; text-align: center;
+        }
+        .task-text { flex-grow: 1; font-size: 0.95rem; font-weight: 500; min-width: 140px; }
         
-        .task-priority { font-weight: 900; font-size: 1.4rem; color: var(--border-blue); width: 30px; text-align: center; }
-        .task-text { flex-grow: 1; font-size: 1.1rem; min-width: 150px; }
-        .task-row.status-ok .task-text { text-decoration: line-through; color: var(--ok-green); }
-        .task-row.status-parcial .task-text { color: var(--parcial-yellow); }
+        .task-row.status-ok { background-color: rgba(209, 250, 229, 0.3); }
+        .task-row.status-ok .task-text { color: var(--ok-text); text-decoration: line-through; }
+        
+        .task-row.status-parcial { background-color: rgba(254, 243, 199, 0.3); }
+        .task-row.status-parcial .task-text { color: var(--parcial-text); }
         
         .task-controls { display: flex; gap: 8px; margin-left: auto; align-items: center; }
         .check-btn { 
-            padding: 8px 12px; font-weight: 900; font-size: 0.85rem; 
-            cursor: pointer; border: 3px solid var(--border-blue); background: var(--bg-pure-white); color: var(--text-black);
+            padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 0.75rem; 
+            cursor: pointer; border: none; transition: all 0.2s ease;
+            background: var(--btn-idle-bg); color: var(--btn-idle-text);
         }
-        .task-row.status-ok .check-btn.ok-btn { background: var(--ok-green); color: var(--bg-pure-white); border-color: var(--text-black); }
-        .task-row.status-parcial .check-btn.parcial-btn { background: var(--parcial-yellow); color: var(--text-black); border-color: var(--text-black); }
+        
+        .task-row.status-ok .check-btn.ok-btn { background: var(--ok-bg); color: var(--ok-text); }
+        .task-row.status-parcial .check-btn.parcial-btn { background: var(--parcial-bg); color: var(--parcial-text); }
 
-        .actions { display: flex; gap: 5px; }
-        .btn-icon { background: var(--bg-pure-white); border: 3px solid var(--border-blue); padding: 8px; color: var(--border-blue); cursor: pointer; display: flex; align-items: center; }
-        .btn-icon.delete { border-color: var(--danger-red); color: var(--danger-red); }
-        .btn-icon .material-icons { font-size: 22px; font-weight: 900; }
+        .actions { display: flex; gap: 4px; opacity: 0.6; transition: opacity 0.2s; }
+        .item-row:hover .actions { opacity: 1; }
+        .btn-icon { 
+            background: transparent; border: none; padding: 8px; border-radius: 8px; 
+            color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; transition: 0.2s;
+        }
+        .btn-icon:hover { background: var(--bg-app); color: var(--text-primary); }
+        .btn-icon.delete:hover { background: #FEE2E2; color: var(--danger); }
+        .btn-icon .material-icons-outlined { font-size: 20px; }
 
-        .add-row { display: flex; align-items: center; gap: 12px; padding: 18px 15px; cursor: pointer; color: var(--border-blue); font-size: 1.1rem; border-top: 3px solid var(--border-blue); background: #F0F4FF; }
-        .add-row .material-icons { font-size: 28px; }
+        .add-row { 
+            display: flex; align-items: center; gap: 12px; padding: 16px; 
+            cursor: pointer; color: var(--accent-primary); font-weight: 500; font-size: 0.95rem; 
+            transition: background 0.2s;
+        }
+        .add-row:hover { background: #EFF6FF; }
+        .add-row .material-icons-outlined { font-size: 22px; }
 
-        .btn-reset-all { display: block; width: 100%; text-align: center; padding: 20px; margin: 30px 0; background: var(--bg-pure-white); border: 4px solid var(--danger-red); color: var(--danger-red); font-size: 1.1rem; cursor: pointer; text-transform: uppercase; }
+        .btn-reset-all { 
+            display: block; width: 100%; text-align: center; padding: 16px; margin: 32px 0; 
+            background: transparent; border: 1px solid var(--border-color); border-radius: 12px; 
+            color: var(--danger); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .btn-reset-all:hover { background: #FEE2E2; border-color: #FCA5A5; }
 
-        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-pure-white); border-top: 4px solid var(--border-blue); display: flex; justify-content: space-around; padding: 15px 0 25px 0; z-index: 20; }
-        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 5px; background: none; border: none; color: var(--border-blue); cursor: pointer; flex: 1; opacity: 0.5; }
-        .tab-item.active { opacity: 1; }
-        .tab-emoji { font-size: 26px; }
-        .tab-item span { font-size: 0.8rem; text-transform: uppercase; }
+        /* Navegación Inferior */
+        .tab-bar { 
+            position: fixed; bottom: 0; left: 0; width: 100%; 
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color); 
+            display: flex; justify-content: space-around; padding: 12px 0 24px 0; z-index: 20; 
+        }
+        .tab-item { 
+            display: flex; flex-direction: column; align-items: center; gap: 4px; 
+            background: none; border: none; color: var(--text-secondary); cursor: pointer; flex: 1; transition: color 0.2s;
+        }
+        .tab-item.active { color: var(--accent-primary); }
+        .tab-item .material-icons-outlined { font-size: 24px; }
+        .tab-item span { font-size: 0.7rem; font-weight: 600; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 50; }
+        /* Modales */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(17, 24, 39, 0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 50; }
         .overlay.active { display: flex; }
-        .modal { background: var(--bg-pure-white); width: 90%; max-width: 350px; border: 4px solid var(--border-blue); }
-        .modal-content { padding: 25px; text-align: center; }
-        .modal-title { font-size: 1.3rem; margin-bottom: 15px; color: var(--border-blue); text-transform: uppercase; }
-        .modal-input { width: 100%; padding: 15px; border: 3px solid var(--border-blue); font-size: 1.1rem; outline: none; margin-bottom: 10px; }
-        .modal-actions { display: flex; border-top: 3px solid var(--border-blue); }
-        .modal-actions button { flex: 1; padding: 20px; background: var(--bg-pure-white); border: none; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; }
-        .modal-actions button:first-child { border-right: 3px solid var(--border-blue); color: var(--text-black); }
-        .modal-actions button:last-child { color: var(--bg-pure-white); background: var(--border-blue); }
-        .modal-actions button.btn-danger { color: var(--bg-pure-white); background: var(--danger-red); }
+        .modal { background: var(--surface); width: 90%; max-width: 360px; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); overflow: hidden; transform: scale(0.95); transition: transform 0.2s; }
+        .overlay.active .modal { transform: scale(1); }
+        .modal-content { padding: 24px; text-align: center; }
+        .modal-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; color: var(--text-primary); }
+        .modal-input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-app); font-size: 0.95rem; font-weight: 500; outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
+        .modal-input:focus { border-color: var(--accent-primary); background: var(--surface); }
+        .modal-actions { display: flex; border-top: 1px solid var(--border-color); }
+        .modal-actions button { flex: 1; padding: 16px; background: none; border: none; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .modal-actions button:hover { background: var(--bg-app); }
+        .modal-actions button:first-child { border-right: 1px solid var(--border-color); color: var(--text-secondary); }
+        .modal-actions button:last-child { color: var(--accent-primary); }
+        .modal-actions button.btn-danger { color: var(--danger); }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>VIAJES JCP ↔ PB</h1>
+        <h1>Viajes JCP ↔ PB</h1>
         <div class="subtitle">iAGENTES.TECH</div>
     </header>
 
@@ -112,7 +172,7 @@
                 <div class="category-title">Pendientes por Prioridad</div>
                 <div class="list-card" id="tareas-container"></div>
             </div>
-            <button class="btn-reset-all" onclick="resetTareas()">Reiniciar Tareas</button>
+            <button class="btn-reset-all" onclick="resetTareas()">Reiniciar Estados de Tareas</button>
         </div>
 
         <div id="tab-equipaje" class="tab-content"><div id="equipaje-container"></div><button class="btn-reset-all" onclick="resetTab('equipaje')">Desmarcar Equipaje</button></div>
@@ -121,17 +181,17 @@
     </div>
 
     <nav class="tab-bar">
-        <button class="tab-item active" onclick="switchTab('tab-tareas', this)"><div class="tab-emoji">📋</div><span>Tareas</span></button>
-        <button class="tab-item" onclick="switchTab('tab-equipaje', this)"><div class="tab-emoji">🎒</div><span>Equipaje</span></button>
-        <button class="tab-item" onclick="switchTab('tab-casas', this)"><div class="tab-emoji">🏠</div><span>Casas</span></button>
-        <button class="tab-item" onclick="switchTab('tab-ranger', this)"><div class="tab-emoji">🛻</div><span>Ranger</span></button>
+        <button class="tab-item active" onclick="switchTab('tab-tareas', this)"><span class="material-icons-outlined">format_list_bulleted</span><span>Tareas</span></button>
+        <button class="tab-item" onclick="switchTab('tab-equipaje', this)"><span class="material-icons-outlined">backpack</span><span>Equipaje</span></button>
+        <button class="tab-item" onclick="switchTab('tab-casas', this)"><span class="material-icons-outlined">home</span><span>Casas</span></button>
+        <button class="tab-item" onclick="switchTab('tab-ranger', this)"><span class="material-icons-outlined">directions_car</span><span>Ranger</span></button>
     </nav>
 
     <div class="overlay" id="action-modal">
         <div class="modal">
             <div class="modal-content">
-                <div class="modal-title" id="modal-title">ACCIÓN</div>
-                <input type="number" id="modal-priority" class="modal-input" placeholder="Prioridad (Ej: 1)" style="display: none;">
+                <div class="modal-title" id="modal-title">Acción</div>
+                <input type="number" id="modal-priority" class="modal-input" placeholder="Nº de Prioridad (Ej: 1, 2)" style="display: none;">
                 <input type="text" id="modal-input" class="modal-input" placeholder="Nombre del ítem">
             </div>
             <div class="modal-actions"><button onclick="closeModal('action-modal')">Cancelar</button><button id="modal-confirm">Guardar</button></div>
@@ -140,7 +200,7 @@
 
     <div class="overlay" id="delete-modal">
         <div class="modal">
-            <div class="modal-content"><div class="modal-title">¿ELIMINAR ÍTEM?</div><div style="font-size: 1rem; color: var(--danger-red);">Esta acción no se puede deshacer.</div></div>
+            <div class="modal-content"><div class="modal-title">¿Eliminar ítem?</div><div style="font-size: 0.9rem; color: var(--text-secondary);">Esta acción no se puede deshacer.</div></div>
             <div class="modal-actions"><button onclick="closeModal('delete-modal')">Cancelar</button><button class="btn-danger" id="delete-confirm">Eliminar</button></div>
         </div>
     </div>
@@ -216,13 +276,13 @@
                             <button class="check-btn parcial-btn" onclick="toggleTask('${iIndex}', 'parcial')">PARCIAL</button>
                         </div>
                         <div class="actions">
-                            <button class="btn-icon" onclick="openTaskEditModal(${iIndex}, ${tarea.priority}, '${tarea.text.replace(/'/g, "\\'")}')"><i class="material-icons">edit</i></button>
-                            <button class="btn-icon delete" onclick="openTaskDeleteModal(${iIndex})"><i class="material-icons">delete</i></button>
+                            <button class="btn-icon" onclick="openTaskEditModal(${iIndex}, ${tarea.priority}, '${tarea.text.replace(/'/g, "\\'")}')"><span class="material-icons-outlined">edit</span></button>
+                            <button class="btn-icon delete" onclick="openTaskDeleteModal(${iIndex})"><span class="material-icons-outlined">delete</span></button>
                         </div>
                     </div>
                 `;
             });
-            html += `<div class="add-row" onclick="openTaskAddModal()"><i class="material-icons">add_circle</i><span>Nueva Tarea Prioritaria</span></div>`;
+            html += `<div class="add-row" onclick="openTaskAddModal()"><span class="material-icons-outlined">add_circle_outline</span><span>Añadir nueva tarea</span></div>`;
             container.innerHTML = html;
         }
 
@@ -250,17 +310,17 @@
                     html += `
                         <div class="item-row ${isChecked}">
                             <div class="item-left" onclick="toggleItem('${sectionId}', ${gIndex}, ${iIndex})">
-                                <div class="circle-check"><i class="material-icons">check</i></div>
+                                <div class="circle-check"><span class="material-icons-outlined">check</span></div>
                                 <span class="item-text">${item.text}</span>
                             </div>
                             <div class="actions">
-                                <button class="btn-icon" onclick="openEditModal('${sectionId}', ${gIndex}, ${iIndex}, '${item.text.replace(/'/g, "\\'")}')"><i class="material-icons">edit</i></button>
-                                <button class="btn-icon delete" onclick="openDeleteModal('${sectionId}', ${gIndex}, ${iIndex})"><i class="material-icons">delete</i></button>
+                                <button class="btn-icon" onclick="openEditModal('${sectionId}', ${gIndex}, ${iIndex}, '${item.text.replace(/'/g, "\\'")}')"><span class="material-icons-outlined">edit</span></button>
+                                <button class="btn-icon delete" onclick="openDeleteModal('${sectionId}', ${gIndex}, ${iIndex})"><span class="material-icons-outlined">delete</span></button>
                             </div>
                         </div>
                     `;
                 });
-                html += `<div class="add-row" onclick="openAddModal('${sectionId}', ${gIndex}, '${group.cat}')"><i class="material-icons">add_circle</i><span>Añadir ítem</span></div></div></div>`;
+                html += `<div class="add-row" onclick="openAddModal('${sectionId}', ${gIndex}, '${group.cat}')"><span class="material-icons-outlined">add_circle_outline</span><span>Añadir ítem</span></div></div></div>`;
             });
             container.innerHTML = html;
         }
@@ -286,7 +346,7 @@
         window.closeModal = (id) => { document.getElementById(id).classList.remove('active'); }
 
         window.openTaskAddModal = function() {
-            document.getElementById('modal-title').innerText = `NUEVA TAREA`;
+            document.getElementById('modal-title').innerText = `Nueva Tarea`;
             modalInput.value = ''; modalPriority.value = '';
             modalPriority.style.display = 'block';
             actionModal.classList.add('active');
@@ -301,7 +361,7 @@
         }
 
         window.openTaskEditModal = function(iIndex, currentPriority, currentText) {
-            document.getElementById('modal-title').innerText = `EDITAR TAREA`;
+            document.getElementById('modal-title').innerText = `Editar Tarea`;
             modalInput.value = currentText; modalPriority.value = currentPriority;
             modalPriority.style.display = 'block';
             actionModal.classList.add('active');
@@ -324,7 +384,7 @@
         }
 
         window.openAddModal = function(sectionId, gIndex, catName) {
-            document.getElementById('modal-title').innerText = `AÑADIR A ${catName}`;
+            document.getElementById('modal-title').innerText = `Añadir a ${catName}`;
             modalInput.value = ''; modalPriority.style.display = 'none';
             actionModal.classList.add('active');
             setTimeout(() => modalInput.focus(), 100);
@@ -338,7 +398,7 @@
         }
 
         window.openEditModal = function(sectionId, gIndex, iIndex, currentText) {
-            document.getElementById('modal-title').innerText = 'EDITAR ÍTEM';
+            document.getElementById('modal-title').innerText = 'Editar Ítem';
             modalInput.value = currentText; modalPriority.style.display = 'none';
             actionModal.classList.add('active');
             setTimeout(() => modalInput.focus(), 100);
