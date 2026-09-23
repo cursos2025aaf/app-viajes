@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Etiquetas ANTI-CACHÉ para evitar problemas de actualización -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <title>Viajes | JCP ↔ PB</title>
     <!-- Tipografía Montserrat ultra gruesa -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
@@ -194,6 +199,7 @@
 
     <script>
         const supabaseUrl = 'https://zsykcyqlcrodcxonsztf.supabase.co';
+        // Tu API key pública segura insertada:
         const supabaseKey = 'sb_publishable_RYypXU9FUNEN8b91XJGXgQ_npmP1RHH';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -224,6 +230,7 @@
 
         let appData = defaultData;
         
+        // FUNCIÓN PRINCIPAL DE INICIO
         async function initApp() {
             const { data, error } = await supabaseClient.from('app_viajes').select('datos').eq('id', 'estado_v2').single();
             if (data && data.datos && Object.keys(data.datos).length > 0) {
@@ -239,10 +246,18 @@
         async function saveData() { 
             const { error } = await supabaseClient.from('app_viajes').upsert({ id: 'estado_v2', datos: appData }); 
             if (error) {
-                alert("⚠️ ERROR AL GUARDAR EN SUPABASE:\n" + error.message);
+                alert("⚠️ ERROR AL GUARDAR:\n" + error.message);
             }
         }
 
+        // AUTO-SINCRONIZACIÓN AL DESPERTAR O CAMBIAR DE PESTAÑA
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                initApp();
+            }
+        });
+
+        // TIEMPO REAL
         supabaseClient.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'app_viajes' }, (payload) => {
             if(payload.new && payload.new.datos) { appData = payload.new.datos; renderAll(); }
         }).subscribe();
