@@ -4,119 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Viajes | JCP ↔ PB</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-light: #FFF7ED; 
-            --bg-header: #F97316; 
-            --card-white: #FFFFFF;
-            --text-dark: #1E293B;
-            --text-gray: #64748B;
-            --border-light: #E2E8F0;
-            --accent-blue: #2563EB;
-            --danger-red: #EF4444;
-            --ok-green: #22C55E;
-            --parcial-yellow: #EAB308;
-            --bg-ok: #DCFCE7;
-            --bg-parcial: #FEF08A;
+            --bg-pure-white: #FFFFFF; 
+            --border-blue: #0033CC; 
+            --text-black: #000000;
+            --text-gray-dark: #333333;
+            --ok-green: #008800;
+            --parcial-yellow: #B8860B; /* Amarillo oscuro / Ámbar */
+            --danger-red: #CC0000;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; font-weight: 700; -webkit-tap-highlight-color: transparent; }
         
-        body { background-color: var(--bg-light); color: var(--text-dark); padding-bottom: 110px; }
+        body { background-color: var(--bg-pure-white); color: var(--text-black); padding-bottom: 110px; }
 
         header {
-            background-color: var(--bg-header); color: white;
+            background-color: var(--border-blue); color: var(--bg-pure-white);
             padding: 25px 20px 15px 20px;
             position: sticky; top: 0; z-index: 10;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border-bottom: 4px solid var(--text-black);
         }
-        h1 { font-size: 1.6rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
-        .subtitle { font-size: 0.85rem; font-weight: 600; opacity: 0.9; margin-top: 5px; }
+        h1 { font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; }
+        .subtitle { font-size: 1rem; color: #E0E0E0; margin-top: 5px; }
 
         .container { padding: 20px; max-width: 800px; margin: 0 auto; }
-        .tab-content { display: none; animation: fadeIn 0.2s ease-in; }
+        .tab-content { display: none; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .category-group { margin-bottom: 25px; }
+        .category-group { margin-bottom: 30px; }
         .category-title { 
-            font-size: 0.95rem; font-weight: 700; color: var(--text-dark); 
-            text-transform: uppercase; letter-spacing: 1px; 
-            margin-bottom: 10px; margin-left: 5px;
+            font-size: 1.1rem; font-weight: 900; color: var(--border-blue); 
+            text-transform: uppercase; margin-bottom: 10px; border-bottom: 3px solid var(--border-blue); padding-bottom: 5px;
         }
         
-        .list-card { background: var(--card-white); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 12px -3px rgba(0,0,0,0.05); }
+        .list-card { background: var(--bg-pure-white); border: 3px solid var(--border-blue); }
 
-        .item-row { display: flex; align-items: center; padding: 16px 15px; border-bottom: 2px solid var(--border-light); transition: background 0.2s; }
+        .item-row { display: flex; align-items: center; padding: 18px 15px; border-bottom: 3px solid var(--border-blue); }
         .item-row:last-child { border-bottom: none; }
         .item-left { display: flex; align-items: center; gap: 15px; flex-grow: 1; cursor: pointer; }
         
-        .circle-check { width: 26px; height: 26px; border-radius: 50%; border: 3px solid #CBD5E1; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
-        .circle-check .material-icons { font-size: 18px; color: transparent; font-weight: bold; }
-        .item-row.checked .circle-check { background: var(--text-dark); border-color: var(--text-dark); }
-        .item-row.checked .circle-check .material-icons { color: white; }
-        .item-text { font-size: 1.05rem; font-weight: 600; color: var(--text-dark); transition: 0.2s; }
-        .item-row.checked .item-text { text-decoration: line-through; color: var(--text-gray); }
+        .circle-check { width: 30px; height: 30px; border: 3px solid var(--border-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--bg-pure-white); }
+        .circle-check .material-icons { font-size: 24px; color: transparent; font-weight: 900; }
+        .item-row.checked .circle-check { background: var(--text-black); border-color: var(--text-black); }
+        .item-row.checked .circle-check .material-icons { color: var(--bg-pure-white); }
+        
+        .item-text { font-size: 1.1rem; color: var(--text-black); }
+        .item-row.checked .item-text { text-decoration: line-through; color: var(--text-gray-dark); }
 
         .task-row { flex-wrap: wrap; gap: 10px; }
-        .task-row.status-ok { background-color: var(--bg-ok); }
-        .task-row.status-parcial { background-color: var(--bg-parcial); }
         
-        .task-priority { font-weight: 800; font-size: 1.2rem; color: var(--bg-header); width: 25px; text-align: center; }
-        .task-text { flex-grow: 1; font-weight: 600; font-size: 1.05rem; min-width: 150px; }
-        .task-row.status-ok .task-text { text-decoration: line-through; color: #166534; }
-        .task-row.status-parcial .task-text { color: #854D0E; }
+        .task-priority { font-weight: 900; font-size: 1.4rem; color: var(--border-blue); width: 30px; text-align: center; }
+        .task-text { flex-grow: 1; font-size: 1.1rem; min-width: 150px; }
+        .task-row.status-ok .task-text { text-decoration: line-through; color: var(--ok-green); }
+        .task-row.status-parcial .task-text { color: var(--parcial-yellow); }
         
-        .task-controls { display: flex; gap: 5px; margin-left: auto; align-items: center; }
+        .task-controls { display: flex; gap: 8px; margin-left: auto; align-items: center; }
         .check-btn { 
-            padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; 
-            cursor: pointer; border: 2px solid var(--border-light); background: white; color: var(--text-gray); transition: 0.2s;
+            padding: 8px 12px; font-weight: 900; font-size: 0.85rem; 
+            cursor: pointer; border: 3px solid var(--border-blue); background: var(--bg-pure-white); color: var(--text-black);
         }
-        .check-btn.ok-btn:hover { border-color: var(--ok-green); color: var(--ok-green); }
-        .check-btn.parcial-btn:hover { border-color: var(--parcial-yellow); color: var(--parcial-yellow); }
-        
-        .task-row.status-ok .check-btn.ok-btn { background: var(--ok-green); color: white; border-color: var(--ok-green); }
-        .task-row.status-parcial .check-btn.parcial-btn { background: var(--parcial-yellow); color: white; border-color: var(--parcial-yellow); }
+        .task-row.status-ok .check-btn.ok-btn { background: var(--ok-green); color: var(--bg-pure-white); border-color: var(--text-black); }
+        .task-row.status-parcial .check-btn.parcial-btn { background: var(--parcial-yellow); color: var(--text-black); border-color: var(--text-black); }
 
         .actions { display: flex; gap: 5px; }
-        .btn-icon { background: #F1F5F9; border: none; padding: 8px; border-radius: 8px; color: var(--text-gray); cursor: pointer; display: flex; align-items: center; }
-        .btn-icon:hover { background: #E2E8F0; color: var(--text-dark); }
-        .btn-icon.delete:hover { background: #FEE2E2; color: var(--danger-red); }
-        .btn-icon .material-icons { font-size: 20px; }
+        .btn-icon { background: var(--bg-pure-white); border: 3px solid var(--border-blue); padding: 8px; color: var(--border-blue); cursor: pointer; display: flex; align-items: center; }
+        .btn-icon.delete { border-color: var(--danger-red); color: var(--danger-red); }
+        .btn-icon .material-icons { font-size: 22px; font-weight: 900; }
 
-        .add-row { display: flex; align-items: center; gap: 12px; padding: 18px 15px; cursor: pointer; color: var(--accent-blue); font-weight: 700; font-size: 1rem; background: #F8FAFC; }
-        .add-row .material-icons { font-size: 24px; }
+        .add-row { display: flex; align-items: center; gap: 12px; padding: 18px 15px; cursor: pointer; color: var(--border-blue); font-size: 1.1rem; border-top: 3px solid var(--border-blue); background: #F0F4FF; }
+        .add-row .material-icons { font-size: 28px; }
 
-        .btn-reset-all { display: block; width: 100%; text-align: center; padding: 18px; margin: 30px 0; background: white; border: none; border-radius: 12px; color: var(--danger-red); font-size: 1.05rem; font-weight: 700; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; }
+        .btn-reset-all { display: block; width: 100%; text-align: center; padding: 20px; margin: 30px 0; background: var(--bg-pure-white); border: 4px solid var(--danger-red); color: var(--danger-red); font-size: 1.1rem; cursor: pointer; text-transform: uppercase; }
 
-        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 2px solid var(--border-light); display: flex; justify-content: space-around; padding: 12px 0 20px 0; z-index: 20; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
-        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 5px; background: none; border: none; color: var(--text-gray); cursor: pointer; flex: 1; }
-        .tab-item.active { color: var(--bg-header); }
-        .tab-emoji { font-size: 22px; filter: grayscale(100%); transition: 0.2s; }
-        .tab-item.active .tab-emoji { filter: grayscale(0%); transform: scale(1.1); }
-        .tab-item span { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-pure-white); border-top: 4px solid var(--border-blue); display: flex; justify-content: space-around; padding: 15px 0 25px 0; z-index: 20; }
+        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 5px; background: none; border: none; color: var(--border-blue); cursor: pointer; flex: 1; opacity: 0.5; }
+        .tab-item.active { opacity: 1; }
+        .tab-emoji { font-size: 26px; }
+        .tab-item span { font-size: 0.8rem; text-transform: uppercase; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 50; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 50; }
         .overlay.active { display: flex; }
-        .modal { background: white; width: 90%; max-width: 350px; border-radius: 20px; overflow: hidden; }
+        .modal { background: var(--bg-pure-white); width: 90%; max-width: 350px; border: 4px solid var(--border-blue); }
         .modal-content { padding: 25px; text-align: center; }
-        .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 15px; color: var(--text-dark); }
-        .modal-input { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid var(--border-light); font-size: 1.05rem; outline: none; margin-bottom: 10px; font-weight: 600; }
-        .modal-input:focus { border-color: var(--bg-header); }
-        .modal-actions { display: flex; border-top: 2px solid var(--border-light); }
-        .modal-actions button { flex: 1; padding: 18px; background: none; border: none; font-size: 1.05rem; font-weight: 700; cursor: pointer; }
-        .modal-actions button:first-child { border-right: 2px solid var(--border-light); color: var(--text-gray); }
-        .modal-actions button:last-child { color: var(--bg-header); }
-        .modal-actions button.btn-danger { color: var(--danger-red); }
+        .modal-title { font-size: 1.3rem; margin-bottom: 15px; color: var(--border-blue); text-transform: uppercase; }
+        .modal-input { width: 100%; padding: 15px; border: 3px solid var(--border-blue); font-size: 1.1rem; outline: none; margin-bottom: 10px; }
+        .modal-actions { display: flex; border-top: 3px solid var(--border-blue); }
+        .modal-actions button { flex: 1; padding: 20px; background: var(--bg-pure-white); border: none; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; }
+        .modal-actions button:first-child { border-right: 3px solid var(--border-blue); color: var(--text-black); }
+        .modal-actions button:last-child { color: var(--bg-pure-white); background: var(--border-blue); }
+        .modal-actions button.btn-danger { color: var(--bg-pure-white); background: var(--danger-red); }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Viajes JCP ↔ PB</h1>
+        <h1>VIAJES JCP ↔ PB</h1>
         <div class="subtitle">iAGENTES.TECH</div>
     </header>
 
@@ -126,7 +112,7 @@
                 <div class="category-title">Pendientes por Prioridad</div>
                 <div class="list-card" id="tareas-container"></div>
             </div>
-            <button class="btn-reset-all" onclick="resetTareas()">Reiniciar Estados de Tareas</button>
+            <button class="btn-reset-all" onclick="resetTareas()">Reiniciar Tareas</button>
         </div>
 
         <div id="tab-equipaje" class="tab-content"><div id="equipaje-container"></div><button class="btn-reset-all" onclick="resetTab('equipaje')">Desmarcar Equipaje</button></div>
@@ -144,8 +130,8 @@
     <div class="overlay" id="action-modal">
         <div class="modal">
             <div class="modal-content">
-                <div class="modal-title" id="modal-title">Acción</div>
-                <input type="number" id="modal-priority" class="modal-input" placeholder="Nº de Prioridad (Ej: 1, 2)" style="display: none;">
+                <div class="modal-title" id="modal-title">ACCIÓN</div>
+                <input type="number" id="modal-priority" class="modal-input" placeholder="Prioridad (Ej: 1)" style="display: none;">
                 <input type="text" id="modal-input" class="modal-input" placeholder="Nombre del ítem">
             </div>
             <div class="modal-actions"><button onclick="closeModal('action-modal')">Cancelar</button><button id="modal-confirm">Guardar</button></div>
@@ -154,7 +140,7 @@
 
     <div class="overlay" id="delete-modal">
         <div class="modal">
-            <div class="modal-content"><div class="modal-title">¿Eliminar ítem?</div><div style="font-size: 0.95rem; color: var(--text-gray); font-weight: 500;">Esta acción no se puede deshacer.</div></div>
+            <div class="modal-content"><div class="modal-title">¿ELIMINAR ÍTEM?</div><div style="font-size: 1rem; color: var(--danger-red);">Esta acción no se puede deshacer.</div></div>
             <div class="modal-actions"><button onclick="closeModal('delete-modal')">Cancelar</button><button class="btn-danger" id="delete-confirm">Eliminar</button></div>
         </div>
     </div>
@@ -192,7 +178,6 @@
         let appData = defaultData;
         
         async function initApp() {
-            // Cambiamos el ID a 'estado_v2' para forzar una recarga limpia con todos tus ítems.
             const { data, error } = await supabaseClient.from('app_viajes').select('datos').eq('id', 'estado_v2').single();
             if (data && data.datos && Object.keys(data.datos).length > 0) {
                 appData = data.datos;
@@ -301,7 +286,7 @@
         window.closeModal = (id) => { document.getElementById(id).classList.remove('active'); }
 
         window.openTaskAddModal = function() {
-            document.getElementById('modal-title').innerText = `Nueva Tarea`;
+            document.getElementById('modal-title').innerText = `NUEVA TAREA`;
             modalInput.value = ''; modalPriority.value = '';
             modalPriority.style.display = 'block';
             actionModal.classList.add('active');
@@ -316,7 +301,7 @@
         }
 
         window.openTaskEditModal = function(iIndex, currentPriority, currentText) {
-            document.getElementById('modal-title').innerText = `Editar Tarea`;
+            document.getElementById('modal-title').innerText = `EDITAR TAREA`;
             modalInput.value = currentText; modalPriority.value = currentPriority;
             modalPriority.style.display = 'block';
             actionModal.classList.add('active');
@@ -339,7 +324,7 @@
         }
 
         window.openAddModal = function(sectionId, gIndex, catName) {
-            document.getElementById('modal-title').innerText = `Añadir a ${catName}`;
+            document.getElementById('modal-title').innerText = `AÑADIR A ${catName}`;
             modalInput.value = ''; modalPriority.style.display = 'none';
             actionModal.classList.add('active');
             setTimeout(() => modalInput.focus(), 100);
@@ -353,7 +338,7 @@
         }
 
         window.openEditModal = function(sectionId, gIndex, iIndex, currentText) {
-            document.getElementById('modal-title').innerText = 'Editar Ítem';
+            document.getElementById('modal-title').innerText = 'EDITAR ÍTEM';
             modalInput.value = currentText; modalPriority.style.display = 'none';
             actionModal.classList.add('active');
             setTimeout(() => modalInput.focus(), 100);
