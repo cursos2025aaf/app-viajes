@@ -6,138 +6,134 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="theme-color" content="#0044CC">
+    <meta name="theme-color" content="#FFFFFF">
     <title>Viajes | JCP ↔ PB</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-white: #FFFFFF;
-            --bg-soft: #F2F6FF;
-            --border-blue: #0044CC;
-            --text-black: #000000;
-            --ok-green: #004D00;
-            --parcial-yellow: #B36B00;
-            --danger-red: #8B0000;
+            --bg: #FFFFFF;
+            --ink: #0B1B3A;
+            --ink-soft: #5B6B85;
+            --line: #E3E9F4;
+            --blue: #1F5BFF;
+            --blue-soft: #EEF3FF;
+            --green: #0F9D58;
+            --green-soft: #E9F8EF;
+            --amber: #D97706;
+            --amber-soft: #FFF4DF;
+            --red: #DC2626;
+            --red-soft: #FEECEC;
+            --radius: 18px;
+            --shadow: 0 8px 28px rgba(16, 40, 100, 0.08);
             --ease: cubic-bezier(.2, .8, .2, 1);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-weight: 800; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-weight: 600; -webkit-tap-highlight-color: transparent; }
         html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-        ::selection { background: var(--border-blue); color: var(--bg-white); }
-        body {
-            background-color: var(--bg-white);
-            background-image: radial-gradient(rgba(0, 68, 204, 0.10) 1.5px, transparent 1.5px);
-            background-size: 22px 22px;
-            color: var(--text-black);
-            padding-bottom: calc(110px + env(safe-area-inset-bottom));
-            touch-action: manipulation;
-        }
-        header {
-            background-color: var(--bg-white);
-            color: var(--text-black);
-            padding: 20px;
-            padding-top: calc(20px + env(safe-area-inset-top));
-            position: sticky; top: 0; z-index: 10;
-            border-bottom: 4px solid var(--border-blue);
-            box-shadow: 0px 6px 0px var(--border-blue);
-            margin-bottom: 20px;
-        }
-        h1 { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; line-height: 1.1; }
-        .subtitle { font-size: 1rem; color: var(--border-blue); margin-top: 5px; letter-spacing: 1px; }
+        ::selection { background: var(--blue); color: #fff; }
+        body { background: var(--bg); color: var(--ink); padding-bottom: calc(110px + env(safe-area-inset-bottom)); touch-action: manipulation; }
+
+        header { background: var(--bg); padding: 20px; padding-top: calc(20px + env(safe-area-inset-top)); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--line); box-shadow: 0 6px 20px rgba(16, 40, 100, 0.05); margin-bottom: 20px; }
+        header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 4px; background: linear-gradient(90deg, var(--blue), #6C8CFF 60%, var(--amber)); }
+        h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.8px; line-height: 1.1; text-transform: uppercase; }
+        .subtitle { font-size: .85rem; font-weight: 700; color: var(--blue); margin-top: 6px; letter-spacing: 1.2px; }
+        .status-dot { position: absolute; right: 20px; top: calc(26px + env(safe-area-inset-top)); width: 12px; height: 12px; border-radius: 50%; background: var(--ink-soft); box-shadow: 0 0 0 4px rgba(91, 107, 133, .15); transition: background .3s, box-shadow .3s; }
+        .status-dot.ok { background: var(--green); box-shadow: 0 0 0 4px rgba(15, 157, 88, .18); }
+        .status-dot.off { background: var(--red); box-shadow: 0 0 0 4px rgba(220, 38, 38, .18); }
+
         .container { padding: 10px 20px; max-width: 800px; margin: 0 auto; }
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeUp .28s var(--ease); }
+        .tab-content.active { display: block; animation: fadeUp .3s var(--ease); }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-        .category-group { margin-bottom: 35px; }
-        .category-title { font-size: 1.2rem; font-weight: 900; color: var(--bg-white); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px; background-color: var(--parcial-yellow); display: inline-block; padding: 5px 15px; border: 3px solid var(--text-black); box-shadow: 4px 4px 0px var(--text-black); }
-        .list-card { background: var(--bg-white); border: 4px solid var(--border-blue); box-shadow: 6px 6px 0px var(--border-blue); }
+        .category-group { margin-bottom: 30px; }
+        .category-title { display: inline-flex; align-items: center; gap: 8px; font-size: .8rem; font-weight: 800; color: var(--ink); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 12px; background: var(--amber-soft); padding: 7px 14px; border-radius: 999px; }
+        .category-title::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
+        .list-card { background: var(--bg); border: 1.5px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
 
-        .item-row { display: flex; align-items: center; padding: 16px 15px; border-bottom: 4px solid var(--border-blue); transition: background-color .2s var(--ease); }
+        .item-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); transition: background-color .2s var(--ease); }
         .item-row:last-child { border-bottom: none; }
-        .item-row:not(.checked):not(.status-ok):not(.status-parcial):hover { background-color: var(--bg-soft); }
-        .item-left { display: flex; align-items: center; gap: 15px; flex-grow: 1; cursor: pointer; min-width: 0; }
-        .circle-check { width: 32px; height: 32px; border: 4px solid var(--border-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--bg-white); transition: transform .15s var(--ease), background-color .2s; }
+        .item-row:not(.checked):not(.status-ok):not(.status-parcial):hover { background: var(--blue-soft); }
+        .item-left { display: flex; align-items: center; gap: 14px; flex-grow: 1; cursor: pointer; min-width: 0; }
+        .circle-check { width: 30px; height: 30px; border: 2.5px solid #B8C4DB; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--bg); transition: transform .15s var(--ease), background-color .2s, border-color .2s; }
+        .item-left:hover .circle-check { border-color: var(--blue); }
         .item-left:active .circle-check { transform: scale(.88); }
-        .circle-check .material-icons { font-size: 24px; color: transparent; font-weight: 900; transform: scale(.4); transition: transform .25s var(--ease), color .2s; }
-        .item-text { font-size: 1.1rem; color: var(--text-black); text-transform: uppercase; word-break: break-word; }
-        .item-row.checked { background-color: var(--ok-green); border-bottom-color: var(--text-black); }
-        .item-row.checked .item-text { color: var(--bg-white); text-decoration: line-through; text-decoration-thickness: 3px; opacity: 0.9; }
-        .item-row.checked .circle-check { background: var(--text-black); border-color: var(--text-black); }
-        .item-row.checked .circle-check .material-icons { color: var(--ok-green); transform: scale(1); }
-        .item-row.checked .btn-icon { background: transparent; border-color: var(--bg-white); color: var(--bg-white); box-shadow: 3px 3px 0px var(--text-black); }
+        .circle-check .material-icons { font-size: 20px; color: transparent; transform: scale(.4); transition: transform .25s var(--ease), color .2s; }
+        .item-text { font-size: 1rem; font-weight: 700; color: var(--ink); word-break: break-word; line-height: 1.3; }
+        .item-row.checked { background: var(--green-soft); }
+        .item-row.checked .item-text { color: var(--ink-soft); text-decoration: line-through; text-decoration-thickness: 2px; }
+        .item-row.checked .circle-check { background: var(--green); border-color: var(--green); }
+        .item-row.checked .circle-check .material-icons { color: #fff; transform: scale(1); }
 
         .task-row { flex-wrap: wrap; gap: 10px; }
-        .task-priority { font-weight: 900; font-size: 1.4rem; color: var(--bg-white); background: var(--text-black); width: 35px; text-align: center; border: 3px solid var(--text-black); }
-        .task-text { flex-grow: 1; font-size: 1.1rem; min-width: 150px; text-transform: uppercase; word-break: break-word; }
-        .task-row.status-ok { background-color: var(--ok-green); border-bottom-color: var(--text-black); }
-        .task-row.status-ok .task-text { text-decoration: line-through; text-decoration-thickness: 3px; color: var(--bg-white); }
-        .task-row.status-ok .task-priority { background: var(--bg-white); color: var(--ok-green); border-color: var(--text-black); }
-        .task-row.status-ok .btn-icon { background: transparent; border-color: var(--bg-white); color: var(--bg-white); box-shadow: 3px 3px 0px var(--text-black); }
-        .task-row.status-parcial { background-color: var(--parcial-yellow); border-bottom-color: var(--text-black); }
-        .task-row.status-parcial .task-text { color: var(--bg-white); }
-        .task-row.status-parcial .task-priority { background: var(--bg-white); color: var(--parcial-yellow); border-color: var(--text-black); }
-        .task-row.status-parcial .btn-icon { background: transparent; border-color: var(--bg-white); color: var(--bg-white); box-shadow: 3px 3px 0px var(--text-black); }
-        .task-controls { display: flex; gap: 10px; margin-left: auto; align-items: center; }
+        .task-priority { font-weight: 800; font-size: 1.05rem; color: #fff; background: var(--ink); min-width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .task-text { flex-grow: 1; font-size: 1rem; font-weight: 700; min-width: 150px; word-break: break-word; line-height: 1.3; }
+        .task-row.status-ok { background: var(--green-soft); }
+        .task-row.status-ok .task-text { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--ink-soft); }
+        .task-row.status-ok .task-priority { background: var(--green); }
+        .task-row.status-parcial { background: var(--amber-soft); }
+        .task-row.status-parcial .task-priority { background: var(--amber); }
+        .task-controls { display: flex; gap: 8px; margin-left: auto; align-items: center; }
 
-        .check-btn { padding: 8px 12px; font-weight: 900; font-size: 0.9rem; cursor: pointer; border: 3px solid var(--border-blue); background: var(--bg-white); color: var(--text-black); box-shadow: 3px 3px 0px var(--border-blue); transition: transform .1s, box-shadow .1s, background-color .2s; text-transform: uppercase; letter-spacing: .3px; }
-        .check-btn:hover { background: var(--bg-soft); }
-        .check-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--border-blue); }
-        .task-row.status-ok .check-btn.ok-btn { background: var(--bg-white); color: var(--ok-green); border-color: var(--text-black); box-shadow: 3px 3px 0px var(--text-black); }
+        .check-btn { padding: 8px 14px; font-weight: 800; font-size: .78rem; cursor: pointer; border: 2px solid var(--line); border-radius: 999px; background: var(--bg); color: var(--ink-soft); transition: transform .12s, background-color .2s, color .2s, border-color .2s; text-transform: uppercase; letter-spacing: .6px; }
+        .check-btn:hover { border-color: var(--blue); color: var(--blue); }
+        .check-btn:active { transform: scale(.94); }
+        .task-row.status-ok .check-btn.ok-btn { background: var(--green); border-color: var(--green); color: #fff; }
         .task-row.status-ok .check-btn.parcial-btn { display: none; }
-        .task-row.status-parcial .check-btn.parcial-btn { background: var(--bg-white); color: var(--parcial-yellow); border-color: var(--text-black); box-shadow: 3px 3px 0px var(--text-black); }
-        .task-row.status-parcial .check-btn.ok-btn { border-color: var(--bg-white); color: var(--bg-white); box-shadow: 3px 3px 0px var(--text-black); background: transparent; }
+        .task-row.status-parcial .check-btn.parcial-btn { background: var(--amber); border-color: var(--amber); color: #fff; }
 
         .actions { display: flex; gap: 8px; }
-        .btn-icon { background: var(--bg-white); border: 3px solid var(--text-black); padding: 8px; color: var(--text-black); cursor: pointer; display: flex; align-items: center; box-shadow: 3px 3px 0px var(--text-black); transition: transform .1s, box-shadow .1s, background-color .2s; }
-        .btn-icon:hover { background: var(--bg-soft); }
-        .btn-icon:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--text-black); }
-        .btn-icon.delete { border-color: var(--danger-red); color: var(--danger-red); box-shadow: 3px 3px 0px var(--danger-red); }
-        .btn-icon.delete:active { box-shadow: 0px 0px 0px var(--danger-red); }
+        .btn-icon { background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; width: 38px; height: 38px; justify-content: center; color: var(--ink-soft); cursor: pointer; display: flex; align-items: center; transition: transform .12s, background-color .2s, color .2s, border-color .2s; }
+        .btn-icon .material-icons { font-size: 20px; }
+        .btn-icon:hover { background: var(--blue-soft); color: var(--blue); border-color: var(--blue); }
+        .btn-icon:active { transform: scale(.92); }
+        .btn-icon.delete { color: var(--red); }
+        .btn-icon.delete:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 
-        .add-row { display: flex; align-items: center; gap: 12px; padding: 18px 15px; cursor: pointer; color: var(--bg-white); background: var(--border-blue); font-size: 1.1rem; border-top: 4px solid var(--border-blue); text-transform: uppercase; letter-spacing: .5px; transition: filter .2s, padding-left .2s var(--ease); }
-        .add-row:hover { filter: brightness(1.12); padding-left: 20px; }
-        .add-row:active { filter: brightness(.9); }
-        .add-row .material-icons { font-size: 28px; }
+        .add-row { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 15px; cursor: pointer; color: var(--blue); background: var(--blue-soft); font-size: .85rem; font-weight: 800; border-top: 1px solid var(--line); text-transform: uppercase; letter-spacing: .8px; transition: background-color .2s, color .2s; }
+        .add-row:hover { background: var(--blue); color: #fff; }
+        .add-row:active { filter: brightness(.92); }
+        .add-row .material-icons { font-size: 24px; }
 
-        .btn-reset-all { display: block; width: 100%; text-align: center; padding: 20px; margin: 40px 0; background: var(--bg-white); border: 4px solid var(--danger-red); color: var(--danger-red); font-size: 1.2rem; cursor: pointer; text-transform: uppercase; letter-spacing: .5px; box-shadow: 5px 5px 0px var(--danger-red); transition: transform .1s, box-shadow .1s, background-color .2s; }
-        .btn-reset-all:hover { background: #FFF1F1; }
-        .btn-reset-all:active { transform: translate(5px, 5px); box-shadow: 0px 0px 0px var(--danger-red); }
+        .btn-reset-all { display: block; width: 100%; text-align: center; padding: 16px; margin: 36px 0; background: var(--bg); border: 2px solid var(--red); border-radius: 14px; color: var(--red); font-size: .9rem; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: .8px; transition: transform .12s, background-color .2s, color .2s; }
+        .btn-reset-all:hover { background: var(--red); color: #fff; }
+        .btn-reset-all:active { transform: scale(.98); }
 
-        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-white); border-top: 5px solid var(--border-blue); display: flex; justify-content: space-around; padding: 0 0 env(safe-area-inset-bottom) 0; z-index: 20; }
-        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 5px; background: none; border: none; border-right: 4px solid var(--border-blue); color: var(--text-black); cursor: pointer; flex: 1; padding: 15px 0; transition: background-color .2s, color .2s; }
-        .tab-item:last-child { border-right: none; }
-        .tab-item:hover:not(.active) { background: var(--bg-soft); }
-        .tab-item.active { background: var(--border-blue); color: var(--bg-white); }
-        .tab-emoji { font-size: 28px; transition: transform .25s var(--ease); }
-        .tab-item.active .tab-emoji { transform: translateY(-2px) scale(1.12); }
-        .tab-item span { font-size: 0.85rem; text-transform: uppercase; font-weight: 900; letter-spacing: .3px; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, .96); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(16, 40, 100, 0.06); display: flex; justify-content: space-around; padding: 0 0 env(safe-area-inset-bottom) 0; z-index: 20; }
+        .tab-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: var(--ink-soft); cursor: pointer; flex: 1; padding: 13px 0 12px; transition: background-color .2s, color .2s; }
+        .tab-item::before { content: ""; position: absolute; top: 0; left: 28%; right: 28%; height: 3px; border-radius: 0 0 4px 4px; background: var(--blue); transform: scaleX(0); transition: transform .3s var(--ease); }
+        .tab-item:hover:not(.active) { background: var(--blue-soft); }
+        .tab-item.active { color: var(--blue); background: var(--blue-soft); }
+        .tab-item.active::before { transform: scaleX(1); }
+        .tab-emoji { font-size: 26px; transition: transform .25s var(--ease); filter: grayscale(.4); }
+        .tab-item.active .tab-emoji { transform: translateY(-2px) scale(1.12); filter: none; }
+        .tab-item span { font-size: .72rem; text-transform: uppercase; font-weight: 800; letter-spacing: .8px; }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 50; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 27, 58, 0.55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 50; }
         .overlay.active { display: flex; animation: fadeIn .2s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .overlay.active .modal { animation: pop .28s var(--ease); }
-        @keyframes pop { from { opacity: 0; transform: scale(.9) translateY(12px); } to { opacity: 1; transform: none; } }
-        .modal { background: var(--bg-white); width: 90%; max-width: 350px; border: 5px solid var(--text-black); box-shadow: 10px 10px 0px var(--border-blue); }
-        .modal-content { padding: 25px; text-align: center; }
-        .modal-title { font-size: 1.4rem; margin-bottom: 20px; color: var(--bg-white); text-transform: uppercase; background: var(--parcial-yellow); display: inline-block; padding: 5px 15px; border: 3px solid var(--text-black); box-shadow: 4px 4px 0px var(--text-black); }
-        .modal-input { width: 100%; padding: 15px; border: 4px solid var(--text-black); font-size: 1.1rem; outline: none; margin-bottom: 15px; text-transform: uppercase; transition: box-shadow .15s, border-color .15s; }
-        .modal-input:focus { border-color: var(--border-blue); box-shadow: 4px 4px 0px var(--border-blue); }
-        .modal-actions { display: flex; border-top: 4px solid var(--text-black); }
-        .modal-actions button { flex: 1; padding: 20px; background: var(--bg-white); border: none; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; font-weight: 900; letter-spacing: .5px; transition: filter .2s; }
-        .modal-actions button:hover { filter: brightness(.94); }
-        .modal-actions button:active { filter: brightness(.85); }
-        .modal-actions button:first-child { border-right: 4px solid var(--text-black); color: var(--text-black); }
-        .modal-actions button:last-child { color: var(--bg-white); background: var(--ok-green); }
-        .modal-actions button.btn-danger { color: var(--bg-white); background: var(--danger-red); }
+        .overlay.active .modal { animation: pop .3s var(--ease); }
+        @keyframes pop { from { opacity: 0; transform: scale(.92) translateY(14px); } to { opacity: 1; transform: none; } }
+        .modal { background: var(--bg); width: 90%; max-width: 360px; border-radius: 24px; box-shadow: 0 24px 60px rgba(11, 27, 58, .35); overflow: hidden; }
+        .modal-content { padding: 26px 24px 8px; text-align: center; }
+        .modal-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 18px; color: var(--ink); text-transform: uppercase; letter-spacing: .8px; background: var(--amber-soft); display: inline-block; padding: 8px 16px; border-radius: 999px; }
+        .modal-input { width: 100%; padding: 14px 16px; border: 2px solid var(--line); border-radius: 14px; font-size: 1rem; font-weight: 700; color: var(--ink); outline: none; margin-bottom: 14px; background: var(--bg); transition: border-color .15s, box-shadow .15s; }
+        .modal-input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(31, 91, 255, .15); }
+        .modal-actions { display: flex; gap: 10px; padding: 12px 20px 22px; }
+        .modal-actions button { flex: 1; padding: 15px; background: var(--bg); border: 2px solid var(--line); border-radius: 14px; font-size: .85rem; cursor: pointer; text-transform: uppercase; font-weight: 800; letter-spacing: .8px; color: var(--ink-soft); transition: transform .12s, filter .2s; }
+        .modal-actions button:hover { filter: brightness(.96); }
+        .modal-actions button:active { transform: scale(.96); }
+        .modal-actions button:last-child { color: #fff; background: var(--blue); border-color: var(--blue); }
+        .modal-actions button.btn-danger { color: #fff; background: var(--red); border-color: var(--red); }
 
-        /* Aviso flotante (no mueve nada del layout) */
-        .toast { position: fixed; left: 50%; bottom: calc(120px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); max-width: 90%; background: var(--text-black); color: var(--bg-white); border: 3px solid var(--text-black); box-shadow: 5px 5px 0px var(--border-blue); padding: 12px 18px; font-size: .9rem; text-transform: uppercase; text-align: center; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s var(--ease); z-index: 60; }
+        .toast { position: fixed; left: 50%; bottom: calc(120px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); max-width: 90%; background: var(--ink); color: #fff; border-radius: 14px; box-shadow: 0 12px 32px rgba(11, 27, 58, .3); padding: 13px 18px; font-size: .82rem; font-weight: 700; line-height: 1.35; text-align: center; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s var(--ease); z-index: 60; }
         .toast.show { opacity: 1; transform: translate(-50%, 0); }
-        .toast.error { background: var(--danger-red); box-shadow: 5px 5px 0px var(--text-black); }
+        .toast.error { background: var(--red); }
 
-        :focus-visible { outline: 4px solid var(--parcial-yellow); outline-offset: 2px; }
+        :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
         @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     </style>
 </head>
@@ -145,6 +141,7 @@
     <header>
         <h1>VIAJES JCP ↔ PB</h1>
         <div class="subtitle">iAGENTES.TECH</div>
+        <div class="status-dot" id="status-dot" title="Estado de la conexión"></div>
     </header>
     <div class="container">
         <div id="tab-tareas" class="tab-content active">
@@ -168,16 +165,16 @@
         <div class="modal">
             <div class="modal-content">
                 <div class="modal-title" id="modal-title">ACCIÓN</div>
-                <input type="number" id="modal-priority" class="modal-input" placeholder="PRIORIDAD (EJ: 1)" style="display: none;">
-                <input type="text" id="modal-input" class="modal-input" placeholder="NOMBRE DEL ÍTEM">
+                <input type="number" id="modal-priority" class="modal-input" placeholder="Prioridad (ej: 1)" style="display: none;">
+                <input type="text" id="modal-input" class="modal-input" placeholder="Nombre del ítem">
             </div>
-            <div class="modal-actions"><button onclick="closeModal('action-modal')">CANCELAR</button><button id="modal-confirm">GUARDAR</button></div>
+            <div class="modal-actions"><button onclick="closeModal('action-modal')">Cancelar</button><button id="modal-confirm">Guardar</button></div>
         </div>
     </div>
     <div class="overlay" id="delete-modal">
         <div class="modal">
-            <div class="modal-content"><div class="modal-title" style="background: var(--danger-red);">¿ELIMINAR?</div><div style="font-size: 1.1rem; color: var(--text-black); margin-top: 15px;">Esta acción no se puede deshacer.</div></div>
-            <div class="modal-actions"><button onclick="closeModal('delete-modal')">CANCELAR</button><button class="btn-danger" id="delete-confirm">ELIMINAR</button></div>
+            <div class="modal-content"><div class="modal-title" style="background: var(--red-soft); color: var(--red);">¿Eliminar?</div><div style="font-size: 1rem; color: var(--ink-soft); margin: 4px 0 14px;">Esta acción no se puede deshacer.</div></div>
+            <div class="modal-actions"><button onclick="closeModal('delete-modal')">Cancelar</button><button class="btn-danger" id="delete-confirm">Eliminar</button></div>
         </div>
     </div>
     <div class="toast" id="toast"></div>
@@ -189,6 +186,7 @@
         const ROW_ID = 'estado_v2';
 
         let appData = { tareas: [], equipaje: [], casas: [], ranger: [] };
+        let loaded = false; // true recién cuando se leyó la base con éxito
 
         // ---------- Utilidades ----------
         function esc(s) {
@@ -203,7 +201,11 @@
             t.textContent = msg;
             t.className = 'toast show' + (isError ? ' error' : '');
             clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => { t.className = 'toast' + (isError ? ' error' : ''); }, isError ? 5000 : 2200);
+            toastTimer = setTimeout(() => { t.className = 'toast' + (isError ? ' error' : ''); }, isError ? 6000 : 2200);
+        }
+
+        function setStatus(ok) {
+            document.getElementById('status-dot').className = 'status-dot ' + (ok ? 'ok' : 'off');
         }
 
         function normalize(d) {
@@ -214,7 +216,7 @@
         }
 
         // ---------- Carga ----------
-        let lastLoad = 0;
+        let lastLoad = 0, loadErrorShown = false;
         async function initApp(silent) {
             try {
                 lastLoad = Date.now();
@@ -223,16 +225,26 @@
                 if (data && data.datos && Object.keys(data.datos).length > 0) {
                     appData = normalize(data.datos);
                 }
+                loaded = true; loadErrorShown = false;
+                setStatus(true);
                 renderAll();
             } catch (err) {
                 console.error("Fetch Error:", err);
-                if (!silent) showToast("Sin conexión con la base: " + (err.message || err), true);
+                setStatus(false);
+                if (!silent || !loadErrorShown) {
+                    loadErrorShown = true;
+                    showToast("Sin conexión con la base (" + (err.message || err) + "). Revisá que el proyecto de Supabase no esté pausado.", true);
+                }
             }
         }
+
+        // Mientras no se haya podido leer la base, reintenta solo cada 20 segundos
+        setInterval(() => { if (!loaded) initApp(true); }, 20000);
 
         // ---------- Guardado (en cola: nunca dos escrituras a la vez) ----------
         let saving = false, savePending = false;
         async function saveData() {
+            if (!loaded) { showToast("No se guardó: todavía no hay conexión con la base.", true); return; }
             if (saving) { savePending = true; return; }
             saving = true;
             try {
@@ -240,9 +252,11 @@
                     savePending = false;
                     const { error } = await supabaseClient.from('app_viajes').upsert({ id: ROW_ID, datos: appData });
                     if (error) throw error;
+                    setStatus(true);
                 } while (savePending);
             } catch (err) {
                 console.error("Save Error:", err);
+                setStatus(false);
                 showToast("No se pudo guardar: " + (err.message || err), true);
             } finally {
                 saving = false;
@@ -257,7 +271,7 @@
         // Tiempo real: ignora los avisos mientras se está guardando (evita pisar cambios propios)
         supabaseClient.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'app_viajes' }, (payload) => {
             if (saving || savePending) return;
-            if (payload.new && payload.new.datos) { appData = normalize(payload.new.datos); renderAll(); }
+            if (payload.new && payload.new.datos) { appData = normalize(payload.new.datos); loaded = true; renderAll(); }
         }).subscribe();
 
         // ---------- Render ----------
@@ -278,7 +292,7 @@
                         <div class="task-text">${esc(tarea.text)}</div>
                         <div class="task-controls">
                             <button class="check-btn ok-btn" onclick="toggleTask(${iIndex}, 'ok')">OK</button>
-                            <button class="check-btn parcial-btn" onclick="toggleTask(${iIndex}, 'parcial')">PARCIAL</button>
+                            <button class="check-btn parcial-btn" onclick="toggleTask(${iIndex}, 'parcial')">Parcial</button>
                         </div>
                         <div class="actions">
                             <button class="btn-icon" onclick="openTaskEditModal(${iIndex})"><i class="material-icons">edit</i></button>
@@ -287,7 +301,7 @@
                     </div>
                 `;
             });
-            html += `<div class="add-row" onclick="openTaskAddModal()"><i class="material-icons">add_box</i><span>NUEVA TAREA</span></div>`;
+            html += `<div class="add-row" onclick="openTaskAddModal()"><i class="material-icons">add_circle</i><span>Nueva tarea</span></div>`;
             container.innerHTML = html;
         }
 
@@ -326,7 +340,7 @@
                         </div>
                     `;
                 });
-                html += `<div class="add-row" onclick="openAddModal('${sectionId}', ${gIndex})"><i class="material-icons">add_box</i><span>AÑADIR ÍTEM</span></div></div></div>`;
+                html += `<div class="add-row" onclick="openAddModal('${sectionId}', ${gIndex})"><i class="material-icons">add_circle</i><span>Añadir ítem</span></div></div></div>`;
             });
             container.innerHTML = html;
         }
@@ -362,7 +376,6 @@
 
         window.closeModal = (id) => { document.getElementById(id).classList.remove('active'); }
 
-        // Enter confirma, Escape cierra
         document.addEventListener('keydown', (e) => {
             if (actionModal.classList.contains('active')) {
                 if (e.key === 'Enter') { e.preventDefault(); modalConfirm.click(); }
@@ -374,7 +387,7 @@
 
         // Tareas
         window.openTaskAddModal = function() {
-            document.getElementById('modal-title').innerText = 'NUEVA TAREA';
+            document.getElementById('modal-title').innerText = 'Nueva tarea';
             modalInput.value = ''; modalPriority.value = '';
             modalPriority.style.display = 'block';
             actionModal.classList.add('active');
@@ -390,7 +403,7 @@
         window.openTaskEditModal = function(iIndex) {
             const t = appData.tareas[iIndex];
             if (!t) return;
-            document.getElementById('modal-title').innerText = 'EDITAR TAREA';
+            document.getElementById('modal-title').innerText = 'Editar tarea';
             modalInput.value = t.text; modalPriority.value = t.priority;
             modalPriority.style.display = 'block';
             actionModal.classList.add('active');
@@ -415,7 +428,7 @@
         // Equipaje / Casas / Ranger
         window.openAddModal = function(sectionId, gIndex) {
             const catName = appData[sectionId][gIndex].cat;
-            document.getElementById('modal-title').innerText = `AÑADIR A ${catName}`;
+            document.getElementById('modal-title').innerText = `Añadir a ${catName}`;
             modalInput.value = ''; modalPriority.style.display = 'none';
             actionModal.classList.add('active');
             setTimeout(() => modalInput.focus(), 100);
@@ -429,7 +442,7 @@
 
         window.openEditModal = function(sectionId, gIndex, iIndex) {
             const item = appData[sectionId][gIndex].items[iIndex];
-            document.getElementById('modal-title').innerText = 'EDITAR ÍTEM';
+            document.getElementById('modal-title').innerText = 'Editar ítem';
             modalInput.value = item.text; modalPriority.style.display = 'none';
             actionModal.classList.add('active');
             setTimeout(() => modalInput.focus(), 100);
