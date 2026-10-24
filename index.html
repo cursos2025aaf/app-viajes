@@ -2,162 +2,150 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Etiquetas ANTI-CACHÉ para evitar problemas de actualización -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    
+    <meta name="theme-color" content="#0044CC">
     <title>Viajes | JCP ↔ PB</title>
-    <!-- Tipografía Montserrat ultra gruesa -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-white: #FFFFFF; 
-            --border-blue: #0044CC; 
+            --bg-white: #FFFFFF;
+            --bg-soft: #F2F6FF;
+            --border-blue: #0044CC;
             --text-black: #000000;
-            --ok-green: #004D00; /* Verde Oscuro */
-            --parcial-yellow: #B36B00; /* Amarillo Oscuro / Ámbar */
-            --danger-red: #8B0000; /* Rojo Oscuro */
+            --ok-green: #004D00;
+            --parcial-yellow: #B36B00;
+            --danger-red: #8B0000;
+            --ease: cubic-bezier(.2, .8, .2, 1);
         }
-
-        * { 
-            margin: 0; padding: 0; box-sizing: border-box; 
-            font-family: 'Montserrat', sans-serif; font-weight: 800; 
-            -webkit-tap-highlight-color: transparent; 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-weight: 800; -webkit-tap-highlight-color: transparent; }
+        html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+        ::selection { background: var(--border-blue); color: var(--bg-white); }
+        body {
+            background-color: var(--bg-white);
+            background-image: radial-gradient(rgba(0, 68, 204, 0.10) 1.5px, transparent 1.5px);
+            background-size: 22px 22px;
+            color: var(--text-black);
+            padding-bottom: calc(110px + env(safe-area-inset-bottom));
+            touch-action: manipulation;
         }
-        
-        body { 
-            background-color: var(--bg-white); 
-            color: var(--text-black); 
-            padding-bottom: 110px; 
-        }
-
         header {
             background-color: var(--bg-white);
             color: var(--text-black);
             padding: 20px;
+            padding-top: calc(20px + env(safe-area-inset-top));
             position: sticky; top: 0; z-index: 10;
             border-bottom: 4px solid var(--border-blue);
             box-shadow: 0px 6px 0px var(--border-blue);
             margin-bottom: 20px;
         }
-        h1 { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; }
-        .subtitle { font-size: 1rem; color: var(--border-blue); margin-top: 5px; }
-
+        h1 { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; line-height: 1.1; }
+        .subtitle { font-size: 1rem; color: var(--border-blue); margin-top: 5px; letter-spacing: 1px; }
         .container { padding: 10px 20px; max-width: 800px; margin: 0 auto; }
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block; animation: fadeUp .28s var(--ease); }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
         .category-group { margin-bottom: 35px; }
-        .category-title { 
-            font-size: 1.2rem; font-weight: 900; color: var(--bg-white); 
-            text-transform: uppercase; margin-bottom: 12px;
-            background-color: var(--parcial-yellow);
-            display: inline-block; padding: 5px 15px;
-            border: 3px solid var(--text-black);
-            box-shadow: 3px 3px 0px var(--text-black);
-        }
-        
-        .list-card { 
-            background: var(--bg-white); 
-            border: 4px solid var(--border-blue); 
-            box-shadow: 6px 6px 0px var(--border-blue);
-        }
+        .category-title { font-size: 1.2rem; font-weight: 900; color: var(--bg-white); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px; background-color: var(--parcial-yellow); display: inline-block; padding: 5px 15px; border: 3px solid var(--text-black); box-shadow: 4px 4px 0px var(--text-black); }
+        .list-card { background: var(--bg-white); border: 4px solid var(--border-blue); box-shadow: 6px 6px 0px var(--border-blue); }
 
-        /* FILAS NORMALES */
-        .item-row { display: flex; align-items: center; padding: 16px 15px; border-bottom: 4px solid var(--border-blue); transition: background-color 0.2s; }
+        .item-row { display: flex; align-items: center; padding: 16px 15px; border-bottom: 4px solid var(--border-blue); transition: background-color .2s var(--ease); }
         .item-row:last-child { border-bottom: none; }
-        .item-left { display: flex; align-items: center; gap: 15px; flex-grow: 1; cursor: pointer; }
-        
-        .circle-check { 
-            width: 32px; height: 32px; border: 4px solid var(--border-blue); 
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--bg-white); 
-        }
-        .circle-check .material-icons { font-size: 24px; color: transparent; font-weight: 900; }
-        
-        .item-text { font-size: 1.1rem; color: var(--text-black); text-transform: uppercase; }
-
-        /* FILAS MARCADAS COMO COMPLETADAS (VERDE OSCURO) */
+        .item-row:not(.checked):not(.status-ok):not(.status-parcial):hover { background-color: var(--bg-soft); }
+        .item-left { display: flex; align-items: center; gap: 15px; flex-grow: 1; cursor: pointer; min-width: 0; }
+        .circle-check { width: 32px; height: 32px; border: 4px solid var(--border-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--bg-white); transition: transform .15s var(--ease), background-color .2s; }
+        .item-left:active .circle-check { transform: scale(.88); }
+        .circle-check .material-icons { font-size: 24px; color: transparent; font-weight: 900; transform: scale(.4); transition: transform .25s var(--ease), color .2s; }
+        .item-text { font-size: 1.1rem; color: var(--text-black); text-transform: uppercase; word-break: break-word; }
         .item-row.checked { background-color: var(--ok-green); border-bottom-color: var(--text-black); }
-        .item-row.checked .item-text { color: var(--bg-white); text-decoration: line-through; opacity: 0.9; }
+        .item-row.checked .item-text { color: var(--bg-white); text-decoration: line-through; text-decoration-thickness: 3px; opacity: 0.9; }
         .item-row.checked .circle-check { background: var(--text-black); border-color: var(--text-black); }
-        .item-row.checked .circle-check .material-icons { color: var(--ok-green); }
+        .item-row.checked .circle-check .material-icons { color: var(--ok-green); transform: scale(1); }
         .item-row.checked .btn-icon { background: transparent; border-color: var(--bg-white); color: var(--bg-white); box-shadow: 3px 3px 0px var(--text-black); }
 
-        /* TAREAS Y PRIORIDADES */
         .task-row { flex-wrap: wrap; gap: 10px; }
         .task-priority { font-weight: 900; font-size: 1.4rem; color: var(--bg-white); background: var(--text-black); width: 35px; text-align: center; border: 3px solid var(--text-black); }
-        .task-text { flex-grow: 1; font-size: 1.1rem; min-width: 150px; text-transform: uppercase; }
-        
-        /* ESTADOS DE TAREAS */
+        .task-text { flex-grow: 1; font-size: 1.1rem; min-width: 150px; text-transform: uppercase; word-break: break-word; }
         .task-row.status-ok { background-color: var(--ok-green); border-bottom-color: var(--text-black); }
-        .task-row.status-ok .task-text { text-decoration: line-through; color: var(--bg-white); }
+        .task-row.status-ok .task-text { text-decoration: line-through; text-decoration-thickness: 3px; color: var(--bg-white); }
         .task-row.status-ok .task-priority { background: var(--bg-white); color: var(--ok-green); border-color: var(--text-black); }
         .task-row.status-ok .btn-icon { background: transparent; border-color: var(--bg-white); color: var(--bg-white); box-shadow: 3px 3px 0px var(--text-black); }
-
         .task-row.status-parcial { background-color: var(--parcial-yellow); border-bottom-color: var(--text-black); }
         .task-row.status-parcial .task-text { color: var(--bg-white); }
         .task-row.status-parcial .task-priority { background: var(--bg-white); color: var(--parcial-yellow); border-color: var(--text-black); }
         .task-row.status-parcial .btn-icon { background: transparent; border-color: var(--bg-white); color: var(--bg-white); box-shadow: 3px 3px 0px var(--text-black); }
-        
-        /* BOTONES INTERNOS */
         .task-controls { display: flex; gap: 10px; margin-left: auto; align-items: center; }
-        .check-btn { 
-            padding: 8px 12px; font-weight: 900; font-size: 0.9rem; 
-            cursor: pointer; border: 3px solid var(--border-blue); background: var(--bg-white); color: var(--text-black);
-            box-shadow: 3px 3px 0px var(--border-blue); transition: 0.1s; text-transform: uppercase;
-        }
+
+        .check-btn { padding: 8px 12px; font-weight: 900; font-size: 0.9rem; cursor: pointer; border: 3px solid var(--border-blue); background: var(--bg-white); color: var(--text-black); box-shadow: 3px 3px 0px var(--border-blue); transition: transform .1s, box-shadow .1s, background-color .2s; text-transform: uppercase; letter-spacing: .3px; }
+        .check-btn:hover { background: var(--bg-soft); }
         .check-btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--border-blue); }
-        
         .task-row.status-ok .check-btn.ok-btn { background: var(--bg-white); color: var(--ok-green); border-color: var(--text-black); box-shadow: 3px 3px 0px var(--text-black); }
         .task-row.status-ok .check-btn.parcial-btn { display: none; }
-
         .task-row.status-parcial .check-btn.parcial-btn { background: var(--bg-white); color: var(--parcial-yellow); border-color: var(--text-black); box-shadow: 3px 3px 0px var(--text-black); }
         .task-row.status-parcial .check-btn.ok-btn { border-color: var(--bg-white); color: var(--bg-white); box-shadow: 3px 3px 0px var(--text-black); background: transparent; }
 
         .actions { display: flex; gap: 8px; }
-        .btn-icon { background: var(--bg-white); border: 3px solid var(--text-black); padding: 8px; color: var(--text-black); cursor: pointer; display: flex; align-items: center; box-shadow: 3px 3px 0px var(--text-black); transition: 0.1s; }
+        .btn-icon { background: var(--bg-white); border: 3px solid var(--text-black); padding: 8px; color: var(--text-black); cursor: pointer; display: flex; align-items: center; box-shadow: 3px 3px 0px var(--text-black); transition: transform .1s, box-shadow .1s, background-color .2s; }
+        .btn-icon:hover { background: var(--bg-soft); }
         .btn-icon:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--text-black); }
         .btn-icon.delete { border-color: var(--danger-red); color: var(--danger-red); box-shadow: 3px 3px 0px var(--danger-red); }
+        .btn-icon.delete:active { box-shadow: 0px 0px 0px var(--danger-red); }
 
-        .add-row { display: flex; align-items: center; gap: 12px; padding: 18px 15px; cursor: pointer; color: var(--bg-white); background: var(--border-blue); font-size: 1.1rem; border-top: 4px solid var(--border-blue); text-transform: uppercase; }
+        .add-row { display: flex; align-items: center; gap: 12px; padding: 18px 15px; cursor: pointer; color: var(--bg-white); background: var(--border-blue); font-size: 1.1rem; border-top: 4px solid var(--border-blue); text-transform: uppercase; letter-spacing: .5px; transition: filter .2s, padding-left .2s var(--ease); }
+        .add-row:hover { filter: brightness(1.12); padding-left: 20px; }
+        .add-row:active { filter: brightness(.9); }
         .add-row .material-icons { font-size: 28px; }
 
-        .btn-reset-all { display: block; width: 100%; text-align: center; padding: 20px; margin: 40px 0; background: var(--bg-white); border: 4px solid var(--danger-red); color: var(--danger-red); font-size: 1.2rem; cursor: pointer; text-transform: uppercase; box-shadow: 5px 5px 0px var(--danger-red); }
+        .btn-reset-all { display: block; width: 100%; text-align: center; padding: 20px; margin: 40px 0; background: var(--bg-white); border: 4px solid var(--danger-red); color: var(--danger-red); font-size: 1.2rem; cursor: pointer; text-transform: uppercase; letter-spacing: .5px; box-shadow: 5px 5px 0px var(--danger-red); transition: transform .1s, box-shadow .1s, background-color .2s; }
+        .btn-reset-all:hover { background: #FFF1F1; }
         .btn-reset-all:active { transform: translate(5px, 5px); box-shadow: 0px 0px 0px var(--danger-red); }
 
-        /* Barra Inferior */
-        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-white); border-top: 5px solid var(--border-blue); display: flex; justify-content: space-around; padding: 0; z-index: 20; }
-        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 5px; background: none; border: none; border-right: 4px solid var(--border-blue); color: var(--text-black); cursor: pointer; flex: 1; padding: 15px 0; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-white); border-top: 5px solid var(--border-blue); display: flex; justify-content: space-around; padding: 0 0 env(safe-area-inset-bottom) 0; z-index: 20; }
+        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 5px; background: none; border: none; border-right: 4px solid var(--border-blue); color: var(--text-black); cursor: pointer; flex: 1; padding: 15px 0; transition: background-color .2s, color .2s; }
         .tab-item:last-child { border-right: none; }
+        .tab-item:hover:not(.active) { background: var(--bg-soft); }
         .tab-item.active { background: var(--border-blue); color: var(--bg-white); }
-        .tab-emoji { font-size: 28px; }
-        .tab-item span { font-size: 0.85rem; text-transform: uppercase; font-weight: 900; }
+        .tab-emoji { font-size: 28px; transition: transform .25s var(--ease); }
+        .tab-item.active .tab-emoji { transform: translateY(-2px) scale(1.12); }
+        .tab-item span { font-size: 0.85rem; text-transform: uppercase; font-weight: 900; letter-spacing: .3px; }
 
-        /* Modales */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 50; }
-        .overlay.active { display: flex; }
+        .overlay.active { display: flex; animation: fadeIn .2s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .overlay.active .modal { animation: pop .28s var(--ease); }
+        @keyframes pop { from { opacity: 0; transform: scale(.9) translateY(12px); } to { opacity: 1; transform: none; } }
         .modal { background: var(--bg-white); width: 90%; max-width: 350px; border: 5px solid var(--text-black); box-shadow: 10px 10px 0px var(--border-blue); }
         .modal-content { padding: 25px; text-align: center; }
-        .modal-title { font-size: 1.4rem; margin-bottom: 20px; color: var(--bg-white); text-transform: uppercase; background: var(--parcial-yellow); display: inline-block; padding: 5px 15px; border: 3px solid var(--text-black); }
-        .modal-input { width: 100%; padding: 15px; border: 4px solid var(--text-black); font-size: 1.1rem; outline: none; margin-bottom: 15px; text-transform: uppercase; }
+        .modal-title { font-size: 1.4rem; margin-bottom: 20px; color: var(--bg-white); text-transform: uppercase; background: var(--parcial-yellow); display: inline-block; padding: 5px 15px; border: 3px solid var(--text-black); box-shadow: 4px 4px 0px var(--text-black); }
+        .modal-input { width: 100%; padding: 15px; border: 4px solid var(--text-black); font-size: 1.1rem; outline: none; margin-bottom: 15px; text-transform: uppercase; transition: box-shadow .15s, border-color .15s; }
+        .modal-input:focus { border-color: var(--border-blue); box-shadow: 4px 4px 0px var(--border-blue); }
         .modal-actions { display: flex; border-top: 4px solid var(--text-black); }
-        .modal-actions button { flex: 1; padding: 20px; background: var(--bg-white); border: none; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; font-weight: 900; }
+        .modal-actions button { flex: 1; padding: 20px; background: var(--bg-white); border: none; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; font-weight: 900; letter-spacing: .5px; transition: filter .2s; }
+        .modal-actions button:hover { filter: brightness(.94); }
+        .modal-actions button:active { filter: brightness(.85); }
         .modal-actions button:first-child { border-right: 4px solid var(--text-black); color: var(--text-black); }
         .modal-actions button:last-child { color: var(--bg-white); background: var(--ok-green); }
         .modal-actions button.btn-danger { color: var(--bg-white); background: var(--danger-red); }
+
+        /* Aviso flotante (no mueve nada del layout) */
+        .toast { position: fixed; left: 50%; bottom: calc(120px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); max-width: 90%; background: var(--text-black); color: var(--bg-white); border: 3px solid var(--text-black); box-shadow: 5px 5px 0px var(--border-blue); padding: 12px 18px; font-size: .9rem; text-transform: uppercase; text-align: center; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s var(--ease); z-index: 60; }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+        .toast.error { background: var(--danger-red); box-shadow: 5px 5px 0px var(--text-black); }
+
+        :focus-visible { outline: 4px solid var(--parcial-yellow); outline-offset: 2px; }
+        @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     </style>
 </head>
 <body>
-
     <header>
         <h1>VIAJES JCP ↔ PB</h1>
         <div class="subtitle">iAGENTES.TECH</div>
     </header>
-
     <div class="container">
         <div id="tab-tareas" class="tab-content active">
             <div class="category-group">
@@ -166,19 +154,16 @@
             </div>
             <button class="btn-reset-all" onclick="resetTareas()">Reiniciar Tareas</button>
         </div>
-
         <div id="tab-equipaje" class="tab-content"><div id="equipaje-container"></div><button class="btn-reset-all" onclick="resetTab('equipaje')">Desmarcar Equipaje</button></div>
         <div id="tab-casas" class="tab-content"><div id="casas-container"></div><button class="btn-reset-all" onclick="resetTab('casas')">Desmarcar Casas</button></div>
         <div id="tab-ranger" class="tab-content"><div id="ranger-container"></div><button class="btn-reset-all" onclick="resetTab('ranger')">Desmarcar Ranger</button></div>
     </div>
-
     <nav class="tab-bar">
         <button class="tab-item active" onclick="switchTab('tab-tareas', this)"><div class="tab-emoji">📋</div><span>Tareas</span></button>
         <button class="tab-item" onclick="switchTab('tab-equipaje', this)"><div class="tab-emoji">🎒</div><span>Equipaje</span></button>
         <button class="tab-item" onclick="switchTab('tab-casas', this)"><div class="tab-emoji">🏠</div><span>Casas</span></button>
         <button class="tab-item" onclick="switchTab('tab-ranger', this)"><div class="tab-emoji">🛻</div><span>Ranger</span></button>
     </nav>
-
     <div class="overlay" id="action-modal">
         <div class="modal">
             <div class="modal-content">
@@ -189,101 +174,114 @@
             <div class="modal-actions"><button onclick="closeModal('action-modal')">CANCELAR</button><button id="modal-confirm">GUARDAR</button></div>
         </div>
     </div>
-
     <div class="overlay" id="delete-modal">
         <div class="modal">
             <div class="modal-content"><div class="modal-title" style="background: var(--danger-red);">¿ELIMINAR?</div><div style="font-size: 1.1rem; color: var(--text-black); margin-top: 15px;">Esta acción no se puede deshacer.</div></div>
             <div class="modal-actions"><button onclick="closeModal('delete-modal')">CANCELAR</button><button class="btn-danger" id="delete-confirm">ELIMINAR</button></div>
         </div>
     </div>
+    <div class="toast" id="toast"></div>
 
     <script>
         const supabaseUrl = 'https://zsykcyqlcrodcxonsztf.supabase.co';
-        // Tu API key pública segura insertada:
         const supabaseKey = 'sb_publishable_RYypXU9FUNEN8b91XJGXgQ_npmP1RHH';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        const ROW_ID = 'estado_v2';
 
-        const defaultData = {
-            tareas: [
-                { priority: 1, text: "Armar bolsos", status: "pending" },
-                { priority: 2, text: "Revisar fluidos Ranger", status: "parcial" },
-                { priority: 3, text: "Cargar combustible", status: "ok" }
-            ],
-            equipaje: [
-                { cat: "Doc y Finanzas", items: [{text: "Billetera", checked: false}, {text: "Dinero", checked: false}, {text: "DNI", checked: false}, {text: "Documentación del auto", checked: false}, {text: "Tarjetas y cuentas", checked: false}] },
-                { cat: "Tecnología", items: [{text: "Celular", checked: false}, {text: "Cargador del celular", checked: false}, {text: "Auriculares", checked: false}, {text: "Tablet", checked: false}, {text: "Cargador de la Tablet", checked: false}, {text: "Notebook", checked: false}, {text: "Cargador de la Notebook", checked: false}] },
-                { cat: "Vehículo", items: [{text: "Gasoil", checked: false}, {text: "Cargador batería", checked: false}, {text: "Inflador neumáticos", checked: false}, {text: "Linterna", checked: false}, {text: "Máquina de fumigar", checked: false}, {text: "Garrafa", checked: false}, {text: "Pala de punta", checked: false}, {text: "Escoba plástica", checked: false}] },
-                { cat: "Indumentaria", items: [{text: "Remeras x 4", checked: false}, {text: "Calzoncillos x 3", checked: false}, {text: "Medias x 3", checked: false}, {text: "Shorts x 3", checked: false}, {text: "Bermudas x 2", checked: false}, {text: "Jeans x 2", checked: false}, {text: "Pantalón largo gimnasia", checked: false}, {text: "Buzo", checked: false}, {text: "Camperas x 2", checked: false}, {text: "Zapatillas x 2", checked: false}, {text: "Ojotas", checked: false}, {text: "Botas", checked: false}, {text: "Sombrero", checked: false}, {text: "Gorra", checked: false}, {text: "Paraguas", checked: false}, {text: "Anteojos x 2", checked: false}, {text: "Mochila ropa", checked: false}] },
-                { cat: "Higiene", items: [{text: "Toallón", checked: false}, {text: "Toalla", checked: false}, {text: "Jabón", checked: false}, {text: "Shampoo", checked: false}, {text: "Crema", checked: false}, {text: "Desodorante", checked: false}, {text: "Cepillo dientes", checked: false}, {text: "Dentífrico", checked: false}, {text: "Peine", checked: false}, {text: "Pañuelos descartables x 3", checked: false}] },
-                { cat: "Salud", items: [{text: "Tensiómetro", checked: false}, {text: "Flogocox 120 mg", checked: false}, {text: "Manta térmica", checked: false}, {text: "Manga para congelar", checked: false}, {text: "Masajeador", checked: false}, {text: "Electroestimulador", checked: false}, {text: "Banda gimnasia", checked: false}, {text: "Guantes gimnasia", checked: false}, {text: "Bolso Tenis", checked: false}] },
-                { cat: "Suministros", items: [{text: "Mate", checked: false}, {text: "Bombilla", checked: false}, {text: "Yerba", checked: false}, {text: "Azúcar", checked: false}, {text: "Agua caliente", checked: false}, {text: "Agua mineral", checked: false}, {text: "Galletitas", checked: false}, {text: "Conservadora", checked: false}, {text: "Caja asado", checked: false}, {text: "Mochila vajilla", checked: false}, {text: "Plato", checked: false}, {text: "Cuchillos x 2", checked: false}, {text: "Tenedor", checked: false}, {text: "Cuchara", checked: false}, {text: "Vaso", checked: false}, {text: "Servilleta", checked: false}, {text: "Repasador", checked: false}, {text: "Sal", checked: false}, {text: "Encendedor", checked: false}] },
-                { cat: "Varios", items: [{text: "Sábanas", checked: false}, {text: "Frazada", checked: false}, {text: "Anotador y lapiceras", checked: false}] }
-            ],
-            casas: [
-                { cat: "J.C. Paz (Salida)", items: [{text: "Cerrar llave de gas", checked: false}, {text: "Desenchufar electrodomésticos", checked: false}, {text: "Activar alarma / cámaras", checked: false}] },
-                { cat: "P. Belgrano (Salida)", items: [{text: "Vaciar heladera", checked: false}, {text: "Cerrar paso de agua", checked: false}, {text: "Asegurar postigos", checked: false}] }
-            ],
-            ranger: [
-                { cat: "Revisión", items: [{text: "Presión de neumáticos", checked: false}, {text: "Aceite y refrigerante", checked: false}, {text: "Líquido parabrisas", checked: false}, {text: "Luces", checked: false}] }
-            ]
-        };
+        let appData = { tareas: [], equipaje: [], casas: [], ranger: [] };
 
-        let appData = defaultData;
-        
-        // FUNCIÓN PRINCIPAL DE INICIO
-        async function initApp() {
-            const { data, error } = await supabaseClient.from('app_viajes').select('datos').eq('id', 'estado_v2').single();
-            if (data && data.datos && Object.keys(data.datos).length > 0) {
-                appData = data.datos;
-                if(!appData.tareas) appData.tareas = defaultData.tareas;
-            } else { 
-                appData = defaultData;
-                saveData(); 
-            }
-            renderAll();
+        // ---------- Utilidades ----------
+        function esc(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
-        async function saveData() { 
-            const { error } = await supabaseClient.from('app_viajes').upsert({ id: 'estado_v2', datos: appData }); 
-            if (error) {
-                alert("⚠️ ERROR AL GUARDAR:\n" + error.message);
+        let toastTimer;
+        function showToast(msg, isError) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (isError ? ' error' : '');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { t.className = 'toast' + (isError ? ' error' : ''); }, isError ? 5000 : 2200);
+        }
+
+        function normalize(d) {
+            const base = { tareas: [], equipaje: [], casas: [], ranger: [] };
+            if (!d || typeof d !== 'object') return base;
+            ['tareas', 'equipaje', 'casas', 'ranger'].forEach(k => { if (Array.isArray(d[k])) base[k] = d[k]; });
+            return base;
+        }
+
+        // ---------- Carga ----------
+        let lastLoad = 0;
+        async function initApp(silent) {
+            try {
+                lastLoad = Date.now();
+                const { data, error } = await supabaseClient.from('app_viajes').select('datos').eq('id', ROW_ID).maybeSingle();
+                if (error) throw error;
+                if (data && data.datos && Object.keys(data.datos).length > 0) {
+                    appData = normalize(data.datos);
+                }
+                renderAll();
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                if (!silent) showToast("Sin conexión con la base: " + (err.message || err), true);
             }
         }
 
-        // AUTO-SINCRONIZACIÓN AL DESPERTAR O CAMBIAR DE PESTAÑA
+        // ---------- Guardado (en cola: nunca dos escrituras a la vez) ----------
+        let saving = false, savePending = false;
+        async function saveData() {
+            if (saving) { savePending = true; return; }
+            saving = true;
+            try {
+                do {
+                    savePending = false;
+                    const { error } = await supabaseClient.from('app_viajes').upsert({ id: ROW_ID, datos: appData });
+                    if (error) throw error;
+                } while (savePending);
+            } catch (err) {
+                console.error("Save Error:", err);
+                showToast("No se pudo guardar: " + (err.message || err), true);
+            } finally {
+                saving = false;
+            }
+        }
+
+        // Al volver a la app: recargar en silencio, máximo 1 vez cada 5 segundos
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                initApp();
-            }
+            if (document.visibilityState === 'visible' && Date.now() - lastLoad > 5000) initApp(true);
         });
 
-        // TIEMPO REAL
+        // Tiempo real: ignora los avisos mientras se está guardando (evita pisar cambios propios)
         supabaseClient.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'app_viajes' }, (payload) => {
-            if(payload.new && payload.new.datos) { appData = payload.new.datos; renderAll(); }
+            if (saving || savePending) return;
+            if (payload.new && payload.new.datos) { appData = normalize(payload.new.datos); renderAll(); }
         }).subscribe();
 
+        // ---------- Render ----------
         function renderAll() {
             renderTareas(); renderCategory('equipaje'); renderCategory('casas'); renderCategory('ranger');
         }
 
         function renderTareas() {
             const container = document.getElementById('tareas-container');
-            if(!container) return;
+            if (!container || !appData.tareas) return;
             appData.tareas.sort((a, b) => a.priority - b.priority);
-
             let html = "";
             appData.tareas.forEach((tarea, iIndex) => {
                 let rowClass = tarea.status === 'ok' ? 'status-ok' : (tarea.status === 'parcial' ? 'status-parcial' : '');
                 html += `
                     <div class="item-row task-row ${rowClass}">
-                        <div class="task-priority">${tarea.priority}</div>
-                        <div class="task-text">${tarea.text}</div>
+                        <div class="task-priority">${esc(tarea.priority)}</div>
+                        <div class="task-text">${esc(tarea.text)}</div>
                         <div class="task-controls">
-                            <button class="check-btn ok-btn" onclick="toggleTask('${iIndex}', 'ok')">OK</button>
-                            <button class="check-btn parcial-btn" onclick="toggleTask('${iIndex}', 'parcial')">PARCIAL</button>
+                            <button class="check-btn ok-btn" onclick="toggleTask(${iIndex}, 'ok')">OK</button>
+                            <button class="check-btn parcial-btn" onclick="toggleTask(${iIndex}, 'parcial')">PARCIAL</button>
                         </div>
                         <div class="actions">
-                            <button class="btn-icon" onclick="openTaskEditModal(${iIndex}, ${tarea.priority}, '${tarea.text.replace(/'/g, "\\'")}')"><i class="material-icons">edit</i></button>
+                            <button class="btn-icon" onclick="openTaskEditModal(${iIndex})"><i class="material-icons">edit</i></button>
                             <button class="btn-icon delete" onclick="openTaskDeleteModal(${iIndex})"><i class="material-icons">delete</i></button>
                         </div>
                     </div>
@@ -294,56 +292,68 @@
         }
 
         window.toggleTask = function(index, status) {
-            let current = appData.tareas[index].status;
-            appData.tareas[index].status = (current === status) ? 'pending' : status;
-            saveData(); renderAll();
+            const t = appData.tareas[index];
+            if (!t) return;
+            t.status = (t.status === status) ? 'pending' : status;
+            renderAll(); saveData();
         }
 
         window.resetTareas = function() {
-            if(confirm("¿Restaurar estado de todas las tareas a Pendiente?")) {
+            if (confirm("¿Restaurar estado de todas las tareas a Pendiente?")) {
                 appData.tareas.forEach(t => t.status = 'pending');
-                saveData(); renderAll();
+                renderAll(); saveData();
             }
         }
 
         window.renderCategory = function(sectionId) {
             const container = document.getElementById(`${sectionId}-container`);
-            if(!container || !appData[sectionId]) return;
+            if (!container || !appData[sectionId]) return;
             let html = "";
             appData[sectionId].forEach((group, gIndex) => {
-                html += `<div class="category-group"><div class="category-title">${group.cat}</div><div class="list-card">`;
-                group.items.forEach((item, iIndex) => {
+                html += `<div class="category-group"><div class="category-title">${esc(group.cat)}</div><div class="list-card">`;
+                (group.items || []).forEach((item, iIndex) => {
                     const isChecked = item.checked ? 'checked' : '';
                     html += `
                         <div class="item-row ${isChecked}">
                             <div class="item-left" onclick="toggleItem('${sectionId}', ${gIndex}, ${iIndex})">
                                 <div class="circle-check"><i class="material-icons">check</i></div>
-                                <span class="item-text">${item.text}</span>
+                                <span class="item-text">${esc(item.text)}</span>
                             </div>
                             <div class="actions">
-                                <button class="btn-icon" onclick="openEditModal('${sectionId}', ${gIndex}, ${iIndex}, '${item.text.replace(/'/g, "\\'")}')"><i class="material-icons">edit</i></button>
+                                <button class="btn-icon" onclick="openEditModal('${sectionId}', ${gIndex}, ${iIndex})"><i class="material-icons">edit</i></button>
                                 <button class="btn-icon delete" onclick="openDeleteModal('${sectionId}', ${gIndex}, ${iIndex})"><i class="material-icons">delete</i></button>
                             </div>
                         </div>
                     `;
                 });
-                html += `<div class="add-row" onclick="openAddModal('${sectionId}', ${gIndex}, '${group.cat}')"><i class="material-icons">add_box</i><span>AÑADIR ÍTEM</span></div></div></div>`;
+                html += `<div class="add-row" onclick="openAddModal('${sectionId}', ${gIndex})"><i class="material-icons">add_box</i><span>AÑADIR ÍTEM</span></div></div></div>`;
             });
             container.innerHTML = html;
         }
 
         window.toggleItem = function(sectionId, gIndex, iIndex) {
-            appData[sectionId][gIndex].items[iIndex].checked = !appData[sectionId][gIndex].items[iIndex].checked;
-            saveData(); renderAll();
+            const item = appData[sectionId][gIndex].items[iIndex];
+            item.checked = !item.checked;
+            renderAll(); saveData();
         }
 
         window.resetTab = function(section) {
-            if(confirm("¿Querés desmarcar todos los casilleros de esta sección?")) {
-                appData[section].forEach(group => group.items.forEach(item => item.checked = false));
-                saveData(); renderAll();
+            if (confirm("¿Querés desmarcar todos los casilleros de esta sección?")) {
+                appData[section].forEach(group => (group.items || []).forEach(item => item.checked = false));
+                renderAll(); saveData();
             }
         }
 
+        // ---------- Navegación ----------
+        window.switchTab = function(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if (btn) btn.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ---------- Modales ----------
         const actionModal = document.getElementById('action-modal');
         const modalInput = document.getElementById('modal-input');
         const modalPriority = document.getElementById('modal-priority');
@@ -352,32 +362,44 @@
 
         window.closeModal = (id) => { document.getElementById(id).classList.remove('active'); }
 
+        // Enter confirma, Escape cierra
+        document.addEventListener('keydown', (e) => {
+            if (actionModal.classList.contains('active')) {
+                if (e.key === 'Enter') { e.preventDefault(); modalConfirm.click(); }
+                if (e.key === 'Escape') closeModal('action-modal');
+            } else if (deleteModal.classList.contains('active') && e.key === 'Escape') {
+                closeModal('delete-modal');
+            }
+        });
+
+        // Tareas
         window.openTaskAddModal = function() {
-            document.getElementById('modal-title').innerText = `NUEVA TAREA`;
+            document.getElementById('modal-title').innerText = 'NUEVA TAREA';
             modalInput.value = ''; modalPriority.value = '';
             modalPriority.style.display = 'block';
             actionModal.classList.add('active');
             setTimeout(() => modalPriority.focus(), 100);
-            
             modalConfirm.onclick = function() {
-                if(modalInput.value.trim() !== '' && modalPriority.value !== '') {
-                    appData.tareas.push({ priority: parseInt(modalPriority.value), text: modalInput.value.trim(), status: 'pending' });
-                    saveData(); renderAll(); closeModal('action-modal');
+                if (modalInput.value.trim() !== '' && modalPriority.value !== '') {
+                    appData.tareas.push({ priority: parseInt(modalPriority.value, 10), text: modalInput.value.trim(), status: 'pending' });
+                    renderAll(); saveData(); closeModal('action-modal');
                 }
             };
         }
 
-        window.openTaskEditModal = function(iIndex, currentPriority, currentText) {
-            document.getElementById('modal-title').innerText = `EDITAR TAREA`;
-            modalInput.value = currentText; modalPriority.value = currentPriority;
+        window.openTaskEditModal = function(iIndex) {
+            const t = appData.tareas[iIndex];
+            if (!t) return;
+            document.getElementById('modal-title').innerText = 'EDITAR TAREA';
+            modalInput.value = t.text; modalPriority.value = t.priority;
             modalPriority.style.display = 'block';
             actionModal.classList.add('active');
-            
+            setTimeout(() => modalInput.focus(), 100);
             modalConfirm.onclick = function() {
-                if(modalInput.value.trim() !== '' && modalPriority.value !== '') {
-                    appData.tareas[iIndex].priority = parseInt(modalPriority.value);
-                    appData.tareas[iIndex].text = modalInput.value.trim();
-                    saveData(); renderAll(); closeModal('action-modal');
+                if (modalInput.value.trim() !== '' && modalPriority.value !== '') {
+                    t.priority = parseInt(modalPriority.value, 10);
+                    t.text = modalInput.value.trim();
+                    renderAll(); saveData(); closeModal('action-modal');
                 }
             };
         }
@@ -386,34 +408,35 @@
             deleteModal.classList.add('active');
             document.getElementById('delete-confirm').onclick = function() {
                 appData.tareas.splice(iIndex, 1);
-                saveData(); renderAll(); closeModal('delete-modal');
+                renderAll(); saveData(); closeModal('delete-modal');
             };
         }
 
-        window.openAddModal = function(sectionId, gIndex, catName) {
+        // Equipaje / Casas / Ranger
+        window.openAddModal = function(sectionId, gIndex) {
+            const catName = appData[sectionId][gIndex].cat;
             document.getElementById('modal-title').innerText = `AÑADIR A ${catName}`;
             modalInput.value = ''; modalPriority.style.display = 'none';
             actionModal.classList.add('active');
             setTimeout(() => modalInput.focus(), 100);
-            
             modalConfirm.onclick = function() {
-                if(modalInput.value.trim() !== '') {
+                if (modalInput.value.trim() !== '') {
                     appData[sectionId][gIndex].items.push({ text: modalInput.value.trim(), checked: false });
-                    saveData(); renderAll(); closeModal('action-modal');
+                    renderAll(); saveData(); closeModal('action-modal');
                 }
             };
         }
 
-        window.openEditModal = function(sectionId, gIndex, iIndex, currentText) {
+        window.openEditModal = function(sectionId, gIndex, iIndex) {
+            const item = appData[sectionId][gIndex].items[iIndex];
             document.getElementById('modal-title').innerText = 'EDITAR ÍTEM';
-            modalInput.value = currentText; modalPriority.style.display = 'none';
+            modalInput.value = item.text; modalPriority.style.display = 'none';
             actionModal.classList.add('active');
             setTimeout(() => modalInput.focus(), 100);
-            
             modalConfirm.onclick = function() {
-                if(modalInput.value.trim() !== '') {
-                    appData[sectionId][gIndex].items[iIndex].text = modalInput.value.trim();
-                    saveData(); renderAll(); closeModal('action-modal');
+                if (modalInput.value.trim() !== '') {
+                    item.text = modalInput.value.trim();
+                    renderAll(); saveData(); closeModal('action-modal');
                 }
             };
         }
@@ -422,19 +445,12 @@
             deleteModal.classList.add('active');
             document.getElementById('delete-confirm').onclick = function() {
                 appData[sectionId][gIndex].items.splice(iIndex, 1);
-                saveData(); renderAll(); closeModal('delete-modal');
+                renderAll(); saveData(); closeModal('delete-modal');
             };
         }
 
-        window.switchTab = function(tabId, btn) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        initApp();
+        // ---------- Arranque ----------
+        initApp(false);
     </script>
 </body>
 </html>
